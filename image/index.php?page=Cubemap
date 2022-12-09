@@ -1,0 +1,69 @@
+<!doctype html public "-//W3C//DTD HTML 4.0//EN"><html>
+<head>
+	<title>Humus - Cubemap</title>
+	<link rel="shortcut icon" href="mainicon.ico">
+	<link rel="stylesheet" href="stylesheet.css">
+	<link href="rss.xml" rel="alternate" type="application/rss+xml" title="Humus" />
+	<link href="comments_rss.xml" rel="alternate" type="application/rss+xml" title="Humus Comments" />
+	</head>
+
+<body onload="startup()">
+
+<div id="Logo"><img src="humus.jpg"></div>
+
+<div id="Menu">
+
+	<table><tr>
+
+	<td width=30></td><td>
+
+	</td></tr><tr>
+	<td colspan=2><b>General</b></td>
+	</tr><tr><td></td><td>
+
+	<a href="index.php?page=News">News</a><br>
+	<a href="index.php?page=3D">3D</a><br>
+	<a href="index.php?page=Pictures">Pictures</a><br>
+	<a href="index.php?page=Textures">Textures</a><br>
+	<a href="index.php?page=Articles">Articles</a><br>
+	<a href="index.php?page=Cool">Cool stuff</a><br>
+
+	</td></tr><tr>
+	<td colspan=2><b>Other</b></td>
+	</tr><tr><td></td><td>
+
+	<a href="index.php?page=FAQ">FAQ</a><br>
+	<a href="index.php?page=About">About Humus</a><br>
+
+	</td></tr><tr>
+	<td colspan=2><b>Other 3D sites</b></td>
+	</tr><tr><td></td><td>
+
+	<a href="http://www.opengl.org" target=_blank>OpenGL.org</a><br>
+	<a href="http://www.gamedev.net" target=_blank>GameDev.net</a><br>
+	<a href="http://www.beyond3d.com" target=_blank>Beyond3D</a><br>
+	<a href="http://www.rage3d.com" target=_blank>Rage3D</a><br>
+
+	</td></tr><tr>
+	<td colspan=2><b>Programming info</b></td>
+	</tr><tr><td></td><td>
+
+	<a href="http://www.opengl.org/registry/" target=_blank>OpenGL extension registry</a><br>
+	<a href="http://nehe.gamedev.net" target=_blank>NeHe</a><br>
+
+	</td></tr></table>
+
+	<br>
+	<a href="http://www.twitter.com/_Humus_" target=_blank><img src="http://twitter-badges.s3.amazonaws.com/follow_me-a.png" alt="Follow _Humus_ on Twitter"/></a>
+
+</div>
+
+<div id="Quote"><font size=2>"Truth never damages a cause that is just."<br> - Mahatma Gandhi<br></font></div>
+
+<div id="Main">
+</div>
+
+<img src="http://counter.loopia.se/stats_img.php?domain=humus.name" alt="" width="1" height="1" border="0">
+
+</body>
+</html>
