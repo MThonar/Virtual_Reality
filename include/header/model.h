@@ -1,8 +1,6 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-// #include </home/leand/ULB_course/INFO-H502/playground/CPP-WORKSPACE/include/glad/glad.h> 
-// #include </home/leand/ULB_course/INFO-H502/playground/CPP-WORKSPACE/include/stb/stb_image.h>
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 

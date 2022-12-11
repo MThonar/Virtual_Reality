@@ -108,7 +108,9 @@ int main()
     Shader ourShaderThird("../shaders/vertex/model_loading.vs", "../shaders/fragment/model_loading.fs"); // you can name your shader files however you like
     Shader ourShaderFourth("../shaders/vertex/cubemap.vs", "../shaders/fragment/cubemap.fs"); // you can name your shader files however you like
 
-    Model ourModel("/home/leand/ULB_course/VirtualReality/object/backpack.obj");
+    stbi_set_flip_vertically_on_load(true);
+
+    Model ourModel("/home/leand/ULB_course/VirtualReality/object/backpack/backpack.obj");
     Model SecondModel("/home/leand/ULB_course/VirtualReality/object/tynanausore.obj");
     Model mapModel("/home/leand/ULB_course/VirtualReality/object/map.obj");
     Model tryModel("/home/leand/ULB_course/VirtualReality/object/try.obj");
@@ -302,8 +304,8 @@ int main()
     texture_text2.texUnit(ourShader, "ourTexture_text", 0);
     texture_text2.texUnit(ourShader, "texture_text2", 1);
 
-    ourShaderThird.Activate();
-    glUniform1i(glGetUniformLocation(ourShaderThird.ID, "texture_diffuse5"), 1); // set it manually
+    // ourShaderThird.Activate();
+    // glUniform1i(glGetUniformLocation(ourShaderThird.ID, "texture_diffuse5"), 1); // set it manually
 
     ourShaderFourth.Activate();
     ourShaderFourth.setInt("skyboxY", 0);
@@ -399,16 +401,15 @@ int main()
         glm::mat4 view5 = camera.GetViewMatrix();
         ourShaderThird.setMat4("projection5", projection5);
         ourShaderThird.setMat4("view5", view5);
+
         glm::mat4 model5 = glm::mat4(1.0f);
-        ourShaderThird.setVec3("lightColor5",  1.0f, 1.0f, 1.0f);
+        // ourShaderThird.setVec3("lightColor5",  1.0f, 1.0f, 1.0f);
         ourShaderThird.setFloatReal("ambient5",  1.0f);
-        glm::mat4 trans4 = glm::mat4(1.0f);
-        trans4 = glm::translate(trans3, glm::vec3(-0.0f, -0.0f, -0.0f));
-        trans4 = glm::rotate(trans4, 0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+   
 
         
-        model5 = glm::translate(model5, glm::vec3(2.2f, 1.0f, 2.0f)); // translate it down so it's at the center of the scene
-        model5= glm::scale(model5, glm::vec3(0.005f, 0.005f, 0.005f));	// it's a bit too big for our scene, so scale it down
+        model5 = glm::translate(model5, glm::vec3(-2.2f, 0.0f, 3.0f)); // translate it down so it's at the center of the scene
+        model5= glm::scale(model5, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         ourShaderThird.setMat4("model5", model5);
         ourModel.Draw(ourShaderThird);
       
