@@ -1,6 +1,5 @@
 file(REMOVE_RECURSE
   "CMakeFiles/STB_IMAGE.dir/thirdparty/stb_image.cpp.o"
-  "CMakeFiles/STB_IMAGE.dir/thirdparty/stb_image.cpp.o.d"
   "libSTB_IMAGE.a"
   "libSTB_IMAGE.pdb"
 )

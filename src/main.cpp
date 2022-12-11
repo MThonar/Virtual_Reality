@@ -104,14 +104,14 @@ int main()
     }
     glEnable(GL_DEPTH_TEST);  
     
-    Shader ourShader("/home/flo/Virtual_Reality/shaders/vertex/3D.vs", "/home/flo/Virtual_Reality/shaders/fragment/light.fs"); // you can name your shader files however you like
+    Shader ourShader("/home/leand/ULB_course/VirtualReality/shaders/vertex/3D.vs", "/home/leand/ULB_course/VirtualReality/shaders/fragment/light.fs"); // you can name your shader files however you like
     Shader ourShaderThird("../shaders/vertex/model_loading.vs", "../shaders/fragment/model_loading.fs"); // you can name your shader files however you like
     Shader ourShaderFourth("../shaders/vertex/cubemap.vs", "../shaders/fragment/cubemap.fs"); // you can name your shader files however you like
 
-    Model ourModel("/home/flo/Virtual_Reality/object/backpack.obj");
-    Model SecondModel("/home/flo/Virtual_Reality/object/tynanausore.obj");
-    Model mapModel("/home/flo/Virtual_Reality/object/map.obj");
-    Model tryModel("/home/flo/Virtual_Reality/object/try.obj");
+    Model ourModel("/home/leand/ULB_course/VirtualReality/object/backpack.obj");
+    Model SecondModel("/home/leand/ULB_course/VirtualReality/object/tynanausore.obj");
+    Model mapModel("/home/leand/ULB_course/VirtualReality/object/map.obj");
+    Model tryModel("/home/leand/ULB_course/VirtualReality/object/try.obj");
 
     glm::mat4 model = glm::mat4(1.0f);
 
@@ -284,17 +284,17 @@ int main()
 
     skyboxVAO.Unbind();
 	skyboxVBO.Unbind();
-    Texture ourTexture_text("/home/flo/Virtual_Reality/image/container.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    Texture texture_text2("/home/flo/Virtual_Reality/image/container.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    Texture ourTexture_text("/home/leand/ULB_course/VirtualReality/image/container.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    Texture texture_text2("/home/leand/ULB_course/VirtualReality/image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 
     vector<std::string> faces
     {
-        "/home/flo/Virtual_Reality/image/container.jpg",
-        "/home/flo/Virtual_Reality/image/container.jpg",
-        "/home/flo/Virtual_Reality/image/container.jpg",
-        "/home/flo/Virtual_Reality/image/container.jpg",
-        "/home/flo/Virtual_Reality/image/container.jpg",
-        "/home/flo/Virtual_Reality/image/container.jpg"
+        "/home/leand/ULB_course/VirtualReality/cubemap/negx.jpg",
+        "/home/leand/ULB_course/VirtualReality/cubemap/negy.jpg",
+        "/home/leand/ULB_course/VirtualReality/cubemap/negz.jpg",
+        "/home/leand/ULB_course/VirtualReality/cubemap/posx.jpg",
+        "/home/leand/ULB_course/VirtualReality/cubemap/posy.jpg",
+        "/home/leand/ULB_course/VirtualReality/cubemap/posz.jpg"
     };
     unsigned int cubemapTexture = loadCubemap(faces); 
 

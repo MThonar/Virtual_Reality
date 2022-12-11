@@ -1,2 +1,2 @@
 #pragma once
-#define ROOT_DIR "/home/flo/Virtual_Reality/"
+#define ROOT_DIR "/home/leand/ULB_course/VirtualReality/"
