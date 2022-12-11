@@ -109,11 +109,14 @@ int main()
     Shader ourShaderFourth("../shaders/vertex/cubemap.vs", "../shaders/fragment/cubemap.fs"); // you can name your shader files however you like
 
     stbi_set_flip_vertically_on_load(true);
-
+    Model BeachBallModel_2("/home/leand/ULB_course/VirtualReality/object/beachball/beachball.obj");
+    Model BeachBallModel("/home/leand/ULB_course/VirtualReality/object/beachball_test/beachball_color.obj");
     Model ourModel("/home/leand/ULB_course/VirtualReality/object/backpack/backpack.obj");
     Model SecondModel("/home/leand/ULB_course/VirtualReality/object/tynanausore.obj");
     Model mapModel("/home/leand/ULB_course/VirtualReality/object/map.obj");
     Model tryModel("/home/leand/ULB_course/VirtualReality/object/try.obj");
+    // stbi_set_flip_vertically_on_load(true);
+    
 
     glm::mat4 model = glm::mat4(1.0f);
 
@@ -367,7 +370,7 @@ int main()
         glUniformMatrix4fv(transformLoc3, 1, GL_FALSE, glm::value_ptr(trans3));
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        // RED BOX
+        //RED BOX
         ourShader.setFloatReal("ambient",  0.1f); //sin((float)glfwGetTime()) + 1);
         for(unsigned int i = 0; i < 2; i++)
         {   
@@ -404,14 +407,22 @@ int main()
 
         glm::mat4 model5 = glm::mat4(1.0f);
         // ourShaderThird.setVec3("lightColor5",  1.0f, 1.0f, 1.0f);
-        ourShaderThird.setFloatReal("ambient5",  1.0f);
-   
+        // ourShaderThird.setFloatReal("ambient5",  1.0f);
+        model5 = glm::translate(model5, glm::vec3(-4.2f, 2.0f, 3.0f)); // translate it down so it's at the center of the scene
+        model5= glm::scale(model5, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        ourShaderThird.setMat4("model5", model5);
+        BeachBallModel.Draw(ourShaderThird);
 
-        
+        model5 = glm::translate(model5, glm::vec3(-4.2f, 2.0f, 3.0f)); // translate it down so it's at the center of the scene
+        model5= glm::scale(model5, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        ourShaderThird.setMat4("model5", model5);
+        BeachBallModel_2.Draw(ourShaderThird);
+
         model5 = glm::translate(model5, glm::vec3(-2.2f, 0.0f, 3.0f)); // translate it down so it's at the center of the scene
         model5= glm::scale(model5, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         ourShaderThird.setMat4("model5", model5);
         ourModel.Draw(ourShaderThird);
+     
       
         
         glfwSwapBuffers(window);
