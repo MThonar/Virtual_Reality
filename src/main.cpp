@@ -284,17 +284,17 @@ int main()
 
     skyboxVAO.Unbind();
 	skyboxVBO.Unbind();
-    Texture ourTexture_text("/home/leand/ULB_course/VirtualReality/image/container.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    Texture ourTexture_text("/home/leand/ULB_course/VirtualReality/image/container.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     Texture texture_text2("/home/leand/ULB_course/VirtualReality/image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 
     vector<std::string> faces
     {
+        "/home/leand/ULB_course/VirtualReality/cubemap/posx.jpg",
         "/home/leand/ULB_course/VirtualReality/cubemap/negx.jpg",
         "/home/leand/ULB_course/VirtualReality/cubemap/negy.jpg",
-        "/home/leand/ULB_course/VirtualReality/cubemap/negz.jpg",
-        "/home/leand/ULB_course/VirtualReality/cubemap/posx.jpg",
         "/home/leand/ULB_course/VirtualReality/cubemap/posy.jpg",
-        "/home/leand/ULB_course/VirtualReality/cubemap/posz.jpg"
+        "/home/leand/ULB_course/VirtualReality/cubemap/posz.jpg",
+        "/home/leand/ULB_course/VirtualReality/cubemap/negz.jpg"
     };
     unsigned int cubemapTexture = loadCubemap(faces); 
 
