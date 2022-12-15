@@ -66,6 +66,20 @@ unsigned int loadCubemap(vector<std::string> faces)
     return textureID;
 } 
 
+bool CheckCollision(glm::vec4 Position_1, glm::vec4 Position_2, float radius_1, float radius_2) // AABB - AABB collision
+{
+    // collision x-axis?
+    bool collisionX = Position_1.x + radius_1 >= Position_2.x &&
+        Position_2.x + radius_2 >= Position_1.x;
+    // collision y-axis?
+    bool collisionY = Position_1.y + radius_1 >= Position_2.y &&
+        Position_2.y + radius_2 >= Position_1.y;
+    // collision only if on both axes
+    bool collisionZ = Position_1.z + radius_1 >= Position_2.z &&
+        Position_2.z + radius_2 >= Position_1.z;
+    return collisionX && collisionY && collisionZ;
+} 
+
 int main()
 {
     // glfw: initialize and configure
@@ -110,6 +124,7 @@ int main()
 
     //
     Model BeachBallModel("../object/beachball/beachball.obj");
+    Model BeachBallModel_2("../object/beachball/beachball.obj");
     stbi_set_flip_vertically_on_load(true);
     Model BackpackModel("../object/backpack/backpack.obj");
 
@@ -405,12 +420,10 @@ int main()
         ModelShader.setMat4("view5", view5);
 
         glm::mat4 model5 = glm::mat4(1.0f);
-        // ModelShader.setVec3("lightColor5",  1.0f, 1.0f, 1.0f);
-        // ModelShader.setFloatReal("ambient5",  1.0f);
-        unsigned int s = 1.0f;
+        glm::mat4 bb_model = glm::mat4(1.0f);
+        glm::mat4 backpack_model = glm::mat4(1.0f);
+
         float time = (float)glfwGetTime();
-        unsigned int round_time = round(time);
-        
         if(glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS){
             angle += 0.01f;
         }
@@ -435,21 +448,31 @@ int main()
         ModelShader.setMat4("model5", model5);
         BeachBallModel.Draw(ModelShader);
 
+        bb_model = glm::translate(bb_model, glm::vec3(-2.2f, 4.0f, 0.0f)); // translate it down so it's at the center of the scene
+        bb_model= glm::scale(bb_model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        ModelShader.setMat4("model5", bb_model);
+        BeachBallModel_2.Draw(ModelShader);
 
-        glm::mat4 backpack_model = glm::mat4(1.0f);
+        bool collision;
+        glm::vec3 Pos5 = glm::vec3(1.0f, 1.0f, 1.0f);
+        glm::vec4 position_of_first_ball =  model5 * glm::vec4(Pos5, 1.0);
+        glm::vec4 position_of_second_ball = bb_model * glm::vec4(Pos5, 1.0);
+
+        collision = CheckCollision(position_of_first_ball, position_of_second_ball, 1.85f, 1.85f);
+        if (collision){
+            backpack_model= glm::scale(backpack_model, glm::vec3(0.3f, 0.3f, 0.3f));	// it's a bit too big for our scene, so scale it down
+        }
+        else{
+            backpack_model= glm::scale(backpack_model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        }
+
         backpack_model = glm::translate(backpack_model, glm::vec3(-2.2f, 0.0f, 3.0f)); // translate it down so it's at the center of the scene
-        backpack_model= glm::scale(backpack_model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         ModelShader.setMat4("model5", backpack_model);
         BackpackModel.Draw(ModelShader);
-     
-      
-        
         glfwSwapBuffers(window);
         glfwPollEvents();
         glfwSwapInterval(1);
     }
-
-
     EBO1.Delete();
     EBO2.Delete();
     VAO1.Delete();
