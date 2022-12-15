@@ -308,7 +308,10 @@ int main()
 
     CubemapShader.Activate();
     CubemapShader.setInt("skyboxY", 0);
-
+    float angle = glm::radians(50.0f);
+    float X = 0.0f;
+    float Y = 0.0f;
+    float Z = 0.0f;
     while (!glfwWindowShouldClose(window))
     {
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -404,15 +407,39 @@ int main()
         glm::mat4 model5 = glm::mat4(1.0f);
         // ModelShader.setVec3("lightColor5",  1.0f, 1.0f, 1.0f);
         // ModelShader.setFloatReal("ambient5",  1.0f);
-        model5 = glm::translate(model5, glm::vec3(-4.2f, 2.0f, 3.0f)); // translate it down so it's at the center of the scene
+        unsigned int s = 1.0f;
+        float time = (float)glfwGetTime();
+        unsigned int round_time = round(time);
+        
+        if(glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS){
+            angle += 0.01f;
+        }
+        if(glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS){
+            angle -= 0.01f;
+        }
+         if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+            Y += 0.01f;
+        }
+         if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+            Y -= 0.01f;
+        }
+         if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+            X -= 0.01f;
+        }
+         if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+            X += 0.01f;
+        }
+        model5 = glm::rotate(model5, angle, glm::vec3(1.0f, 0.0f, 0.0f));
+        model5 = glm::translate(model5, glm::vec3(X, Y, Z)); // translate it down so it's at the center of the scene
         model5= glm::scale(model5, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         ModelShader.setMat4("model5", model5);
         BeachBallModel.Draw(ModelShader);
 
 
-        model5 = glm::translate(model5, glm::vec3(-2.2f, 0.0f, 3.0f)); // translate it down so it's at the center of the scene
-        model5= glm::scale(model5, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        ModelShader.setMat4("model5", model5);
+        glm::mat4 backpack_model = glm::mat4(1.0f);
+        backpack_model = glm::translate(backpack_model, glm::vec3(-2.2f, 0.0f, 3.0f)); // translate it down so it's at the center of the scene
+        backpack_model= glm::scale(backpack_model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        ModelShader.setMat4("model5", backpack_model);
         BackpackModel.Draw(ModelShader);
      
       
