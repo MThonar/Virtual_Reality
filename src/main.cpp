@@ -104,17 +104,17 @@ int main()
     }
     glEnable(GL_DEPTH_TEST);  
     
-    Shader ourShader("/home/leand/ULB_course/VirtualReality/shaders/vertex/3D.vs", "/home/leand/ULB_course/VirtualReality/shaders/fragment/light.fs"); // you can name your shader files however you like
+    Shader ourShader("../shaders/vertex/3D.vs", "../shaders/fragment/light.fs"); // you can name your shader files however you like
     Shader ourShaderThird("../shaders/vertex/model_loading.vs", "../shaders/fragment/model_loading.fs"); // you can name your shader files however you like
     Shader ourShaderFourth("../shaders/vertex/cubemap.vs", "../shaders/fragment/cubemap.fs"); // you can name your shader files however you like
 
     stbi_set_flip_vertically_on_load(true);
-    Model BeachBallModel_2("/home/leand/ULB_course/VirtualReality/object/beachball/beachball.obj");
-    Model BeachBallModel("/home/leand/ULB_course/VirtualReality/object/beachball_test/beachball_color.obj");
-    Model ourModel("/home/leand/ULB_course/VirtualReality/object/backpack/backpack.obj");
-    Model SecondModel("/home/leand/ULB_course/VirtualReality/object/tynanausore.obj");
-    Model mapModel("/home/leand/ULB_course/VirtualReality/object/map.obj");
-    Model tryModel("/home/leand/ULB_course/VirtualReality/object/try.obj");
+    Model BeachBallModel_2("../object/beachball/beachball.obj");
+    Model BeachBallModel("../object/beachball_test/beachball_color.obj");
+    Model ourModel("../object/backpack/backpack.obj");
+    Model SecondModel("../object/tynanausore.obj");
+    Model mapModel("../object/map.obj");
+    Model tryModel("../object/try.obj");
     // stbi_set_flip_vertically_on_load(true);
     
 
@@ -289,17 +289,17 @@ int main()
 
     skyboxVAO.Unbind();
 	skyboxVBO.Unbind();
-    Texture ourTexture_text("/home/leand/ULB_course/VirtualReality/image/container.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    Texture texture_text2("/home/leand/ULB_course/VirtualReality/image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    Texture ourTexture_text("../image/container.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    Texture texture_text2("../image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 
     vector<std::string> faces
     {
-        "/home/leand/ULB_course/VirtualReality/cubemap/posx.jpg",
-        "/home/leand/ULB_course/VirtualReality/cubemap/negx.jpg",
-        "/home/leand/ULB_course/VirtualReality/cubemap/negy.jpg",
-        "/home/leand/ULB_course/VirtualReality/cubemap/posy.jpg",
-        "/home/leand/ULB_course/VirtualReality/cubemap/posz.jpg",
-        "/home/leand/ULB_course/VirtualReality/cubemap/negz.jpg"
+        "../cubemap/posx.jpg",
+        "../cubemap/negx.jpg",
+        "../cubemap/negy.jpg",
+        "../cubemap/posy.jpg",
+        "../cubemap/posz.jpg",
+        "../cubemap/negz.jpg"
     };
     unsigned int cubemapTexture = loadCubemap(faces); 
 
