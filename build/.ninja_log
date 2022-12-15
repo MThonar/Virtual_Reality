@@ -1,0 +1,14 @@
+# ninja log v5
+1	66	1671109598008149000	CMakeFiles/OpenGLExample.dir/src/EBO.cpp.o	e376fa5bc47edaf7
+1	67	1671109598008149000	CMakeFiles/OpenGLExample.dir/src/VAO.cpp.o	6c00381485fccaab
+1	75	1671109598018149000	CMakeFiles/OpenGLExample.dir/src/VBO.cpp.o	2fa63268be4ad011
+2	218	1671109598158149000	CMakeFiles/OpenGLExample.dir/src/glad.c.o	5fc23e999f293488
+0	220	1671109598158149000	CMakeFiles/GLAD.dir/thirdparty/glad.c.o	149a80d3ea9a8bfc
+220	243	1671109598188149000	libGLAD.a	e065a3f247f9ea42
+1	650	1671109598588149000	CMakeFiles/OpenGLExample.dir/src/Camera.cpp.o	c8db56aa78e9c706
+2	1020	1671109598958149000	CMakeFiles/OpenGLExample.dir/src/texture.cpp.o	7e6982d589f8961d
+1	1063	1671109599008149000	CMakeFiles/OpenGLExample.dir/src/Shader.cpp.o	23bfa556e0991d24
+1	1109	1671109599048149000	CMakeFiles/STB_IMAGE.dir/thirdparty/stb_image.cpp.o	c9aa5b0b645c43ad
+1109	1126	1671109599068149000	libSTB_IMAGE.a	d6b41f398659fd1f
+2	2569	1671109600499628000	CMakeFiles/OpenGLExample.dir/src/main.cpp.o	3f48055dac545fc2
+2569	2952	1671109600889628000	OpenGLExample	6b08c3e7f185baa5

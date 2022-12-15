@@ -104,19 +104,15 @@ int main()
     }
     glEnable(GL_DEPTH_TEST);  
     
-    Shader ourShader("../shaders/vertex/3D.vs", "../shaders/fragment/light.fs"); // you can name your shader files however you like
-    Shader ourShaderThird("../shaders/vertex/model_loading.vs", "../shaders/fragment/model_loading.fs"); // you can name your shader files however you like
-    Shader ourShaderFourth("../shaders/vertex/cubemap.vs", "../shaders/fragment/cubemap.fs"); // you can name your shader files however you like
+    Shader lightShader("../shaders/vertex/3D.vs", "../shaders/fragment/light.fs"); // you can name your shader files however you like
+    Shader ModelShader("../shaders/vertex/model_loading.vs", "../shaders/fragment/model_loading.fs"); // you can name your shader files however you like
+    Shader CubemapShader("../shaders/vertex/cubemap.vs", "../shaders/fragment/cubemap.fs"); // you can name your shader files however you like
 
+    //
+    Model BeachBallModel("../object/beachball/beachball.obj");
     stbi_set_flip_vertically_on_load(true);
-    Model BeachBallModel_2("../object/beachball/beachball.obj");
-    Model BeachBallModel("../object/beachball_test/beachball_color.obj");
-    Model ourModel("../object/backpack/backpack.obj");
-    Model SecondModel("../object/tynanausore.obj");
-    Model mapModel("../object/map.obj");
-    Model tryModel("../object/try.obj");
-    // stbi_set_flip_vertically_on_load(true);
-    
+    Model BackpackModel("../object/backpack/backpack.obj");
+
 
     glm::mat4 model = glm::mat4(1.0f);
 
@@ -303,15 +299,15 @@ int main()
     };
     unsigned int cubemapTexture = loadCubemap(faces); 
 
-    ourShader.Activate();
-    texture_text2.texUnit(ourShader, "ourTexture_text", 0);
-    texture_text2.texUnit(ourShader, "texture_text2", 1);
+    lightShader.Activate();
+    texture_text2.texUnit(lightShader, "ourTexture_text", 0);
+    texture_text2.texUnit(lightShader, "texture_text2", 1);
 
-    // ourShaderThird.Activate();
-    // glUniform1i(glGetUniformLocation(ourShaderThird.ID, "texture_diffuse5"), 1); // set it manually
+    // ModelShader.Activate();
+    // glUniform1i(glGetUniformLocation(ModelShader.ID, "texture_diffuse5"), 1); // set it manually
 
-    ourShaderFourth.Activate();
-    ourShaderFourth.setInt("skyboxY", 0);
+    CubemapShader.Activate();
+    CubemapShader.setInt("skyboxY", 0);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -336,27 +332,27 @@ int main()
 
         // CUBEMAP
         glDepthMask(GL_FALSE);
-        ourShaderFourth.Activate();
+        CubemapShader.Activate();
         glm::mat4 projectionY = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        ourShaderFourth.setMat4("projectionY", projectionY);
+        CubemapShader.setMat4("projectionY", projectionY);
         glm::mat4 viewY = camera.GetViewMatrix();
         viewY = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-        ourShaderFourth.setMat4("viewY", viewY);
+        CubemapShader.setMat4("viewY", viewY);
         skyboxVAO.Bind();
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glDepthMask(GL_TRUE);
 
         // NEW SHADER
-        ourShader.Activate();
-        ourShader.setVec3("viewPos", camera.Position); 
-        ourShader.setVec3("lightPos",  lightPos);
+        lightShader.Activate();
+        lightShader.setVec3("viewPos", camera.Position); 
+        lightShader.setVec3("lightPos",  lightPos);
         glm::mat4 projectionX = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        ourShader.setMat4("projectionX", projectionX);
+        lightShader.setMat4("projectionX", projectionX);
         glm::mat4 viewX = camera.GetViewMatrix();
-        ourShader.setMat4("viewX", viewX);
+        lightShader.setMat4("viewX", viewX);
 
-        int modelLoc = glGetUniformLocation(ourShader.ID, "model");
+        int modelLoc = glGetUniformLocation(lightShader.ID, "model");
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
         // LIGHT
@@ -364,14 +360,14 @@ int main()
         glm::mat4 trans3 = glm::mat4(1.0f);
         trans3 = glm::translate(trans3, lightPos);
         trans3 = glm::rotate(trans3, 0.0f, glm::vec3(1.0f, 0.0f, 1.0f));
-        ourShader.setVec3("lightColor",  1000.0f, 1000.0f, 1000.0f);
-        ourShader.setFloatReal("ambient",  1000.0f);
-        unsigned int transformLoc3 = glGetUniformLocation(ourShader.ID, "transform_text");
+        lightShader.setVec3("lightColor",  1000.0f, 1000.0f, 1000.0f);
+        lightShader.setFloatReal("ambient",  1000.0f);
+        unsigned int transformLoc3 = glGetUniformLocation(lightShader.ID, "transform_text");
         glUniformMatrix4fv(transformLoc3, 1, GL_FALSE, glm::value_ptr(trans3));
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         //RED BOX
-        ourShader.setFloatReal("ambient",  0.1f); //sin((float)glfwGetTime()) + 1);
+        lightShader.setFloatReal("ambient",  0.1f); //sin((float)glfwGetTime()) + 1);
         for(unsigned int i = 0; i < 2; i++)
         {   
             glm::mat4 trans3 = glm::mat4(1.0f);
@@ -380,48 +376,44 @@ int main()
             model = glm::translate(model, cubePositions[i]);
             float angle = 20.0f * i; 
             if (i%2) {
-                ourShader.setVec3("lightColor",  0.0f, 1.0f, 0.0f);
+                lightShader.setVec3("lightColor",  0.0f, 1.0f, 0.0f);
                 model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
                 trans3 = glm::rotate(trans3, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(1.0f, 1.0f, 1.0f));
             }
             else{
-                ourShader.setVec3("lightColor",  1.0f, 0.0f, 0.0f);
+                lightShader.setVec3("lightColor",  1.0f, 0.0f, 0.0f);
                 model = glm::rotate(model, 0.0f, glm::vec3(1.0f, 0.3f, 0.5f));
                 trans3 = glm::rotate(trans3, 0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
             }
-            ourShader.setMat4("model", model);
+            lightShader.setMat4("model", model);
 
-            unsigned int transformLoc3 = glGetUniformLocation(ourShader.ID, "transform_text");
+            unsigned int transformLoc3 = glGetUniformLocation(lightShader.ID, "transform_text");
             glUniformMatrix4fv(transformLoc3, 1, GL_FALSE, glm::value_ptr(trans3));
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
         // MODEL
-        ourShaderThird.Activate();
+        ModelShader.Activate();
 
         glm::mat4 projection5 = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view5 = camera.GetViewMatrix();
-        ourShaderThird.setMat4("projection5", projection5);
-        ourShaderThird.setMat4("view5", view5);
+        ModelShader.setMat4("projection5", projection5);
+        ModelShader.setMat4("view5", view5);
 
         glm::mat4 model5 = glm::mat4(1.0f);
-        // ourShaderThird.setVec3("lightColor5",  1.0f, 1.0f, 1.0f);
-        // ourShaderThird.setFloatReal("ambient5",  1.0f);
+        // ModelShader.setVec3("lightColor5",  1.0f, 1.0f, 1.0f);
+        // ModelShader.setFloatReal("ambient5",  1.0f);
         model5 = glm::translate(model5, glm::vec3(-4.2f, 2.0f, 3.0f)); // translate it down so it's at the center of the scene
         model5= glm::scale(model5, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        ourShaderThird.setMat4("model5", model5);
-        BeachBallModel.Draw(ourShaderThird);
+        ModelShader.setMat4("model5", model5);
+        BeachBallModel.Draw(ModelShader);
 
-        model5 = glm::translate(model5, glm::vec3(-4.2f, 2.0f, 3.0f)); // translate it down so it's at the center of the scene
-        model5= glm::scale(model5, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        ourShaderThird.setMat4("model5", model5);
-        BeachBallModel_2.Draw(ourShaderThird);
 
         model5 = glm::translate(model5, glm::vec3(-2.2f, 0.0f, 3.0f)); // translate it down so it's at the center of the scene
         model5= glm::scale(model5, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        ourShaderThird.setMat4("model5", model5);
-        ourModel.Draw(ourShaderThird);
+        ModelShader.setMat4("model5", model5);
+        BackpackModel.Draw(ModelShader);
      
       
         
