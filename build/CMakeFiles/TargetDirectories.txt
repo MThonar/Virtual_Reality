@@ -1,5 +1,0 @@
-/home/ubuntu/Documents/Virtual_Reality/build/CMakeFiles/rebuild_cache.dir
-/home/ubuntu/Documents/Virtual_Reality/build/CMakeFiles/edit_cache.dir
-/home/ubuntu/Documents/Virtual_Reality/build/CMakeFiles/GLAD.dir
-/home/ubuntu/Documents/Virtual_Reality/build/CMakeFiles/STB_IMAGE.dir
-/home/ubuntu/Documents/Virtual_Reality/build/CMakeFiles/OpenGLExample.dir
