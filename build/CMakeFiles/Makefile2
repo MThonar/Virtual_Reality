@@ -129,8 +129,8 @@ CMakeFiles/STB_IMAGE.dir/clean:
 # Target rules for target CMakeFiles/OpenGLExample.dir
 
 # All Build rule for target.
-CMakeFiles/OpenGLExample.dir/all: CMakeFiles/STB_IMAGE.dir/all
 CMakeFiles/OpenGLExample.dir/all: CMakeFiles/GLAD.dir/all
+CMakeFiles/OpenGLExample.dir/all: CMakeFiles/STB_IMAGE.dir/all
 	$(MAKE) -f CMakeFiles/OpenGLExample.dir/build.make CMakeFiles/OpenGLExample.dir/depend
 	$(MAKE) -f CMakeFiles/OpenGLExample.dir/build.make CMakeFiles/OpenGLExample.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ubuntu/Documents/Virtual_Reality/build/CMakeFiles --progress-num=3,4,5,6,7,8,9,10,11 "Built target OpenGLExample"
