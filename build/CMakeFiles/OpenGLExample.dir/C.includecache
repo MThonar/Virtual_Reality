@@ -6,3 +6,31 @@
 
 #IncludeRegexTransform: 
 
+../include/KHR/khrplatform.h
+stdint.h
+-
+inttypes.h
+-
+stdint.h
+-
+
+../include/glad/glad.h
+KHR/khrplatform.h
+-
+
+/home/ubuntu/Documents/Virtual_Reality/src/glad.c
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+../include/glad/glad.h
+-
+windows.h
+-
+winapifamily.h
+-
+dlfcn.h
+-
+
