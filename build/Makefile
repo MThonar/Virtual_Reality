@@ -203,6 +203,54 @@ src/EBO.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/OpenGLExample.dir/build.make CMakeFiles/OpenGLExample.dir/src/EBO.cpp.s
 .PHONY : src/EBO.cpp.s
 
+src/Particle.o: src/Particle.cpp.o
+.PHONY : src/Particle.o
+
+# target to build an object file
+src/Particle.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OpenGLExample.dir/build.make CMakeFiles/OpenGLExample.dir/src/Particle.cpp.o
+.PHONY : src/Particle.cpp.o
+
+src/Particle.i: src/Particle.cpp.i
+.PHONY : src/Particle.i
+
+# target to preprocess a source file
+src/Particle.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OpenGLExample.dir/build.make CMakeFiles/OpenGLExample.dir/src/Particle.cpp.i
+.PHONY : src/Particle.cpp.i
+
+src/Particle.s: src/Particle.cpp.s
+.PHONY : src/Particle.s
+
+# target to generate assembly for a file
+src/Particle.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OpenGLExample.dir/build.make CMakeFiles/OpenGLExample.dir/src/Particle.cpp.s
+.PHONY : src/Particle.cpp.s
+
+src/ParticleGenerator.o: src/ParticleGenerator.cpp.o
+.PHONY : src/ParticleGenerator.o
+
+# target to build an object file
+src/ParticleGenerator.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OpenGLExample.dir/build.make CMakeFiles/OpenGLExample.dir/src/ParticleGenerator.cpp.o
+.PHONY : src/ParticleGenerator.cpp.o
+
+src/ParticleGenerator.i: src/ParticleGenerator.cpp.i
+.PHONY : src/ParticleGenerator.i
+
+# target to preprocess a source file
+src/ParticleGenerator.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OpenGLExample.dir/build.make CMakeFiles/OpenGLExample.dir/src/ParticleGenerator.cpp.i
+.PHONY : src/ParticleGenerator.cpp.i
+
+src/ParticleGenerator.s: src/ParticleGenerator.cpp.s
+.PHONY : src/ParticleGenerator.s
+
+# target to generate assembly for a file
+src/ParticleGenerator.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OpenGLExample.dir/build.make CMakeFiles/OpenGLExample.dir/src/ParticleGenerator.cpp.s
+.PHONY : src/ParticleGenerator.cpp.s
+
 src/Shader.o: src/Shader.cpp.o
 .PHONY : src/Shader.o
 
@@ -412,6 +460,12 @@ help:
 	@echo "... src/EBO.o"
 	@echo "... src/EBO.i"
 	@echo "... src/EBO.s"
+	@echo "... src/Particle.o"
+	@echo "... src/Particle.i"
+	@echo "... src/Particle.s"
+	@echo "... src/ParticleGenerator.o"
+	@echo "... src/ParticleGenerator.i"
+	@echo "... src/ParticleGenerator.s"
 	@echo "... src/Shader.o"
 	@echo "... src/Shader.i"
 	@echo "... src/Shader.s"

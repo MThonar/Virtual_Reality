@@ -1,6 +1,6 @@
 #include "../include/glad/glad.h"
 #include "../include/GLFW/glfw3.h"
-#define STB_IMAGE_IMPLEMENTATION
+
 #include "../include/stb/stb_image.h"
 #include "../include/header/Camera.h"
 #include "../include/header/model.h"
@@ -9,17 +9,23 @@
 #include "../include/header/VAO.h"
 #include "../include/header/Shader.h"
 #include "../include/header/texture.h"
+#include "../include/header/ParticleGenerator.h"
+// #include "../include/header/Particle.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include <iostream>
 #include <cmath>
+#include <stdio.h>
+#include <assert.h>
+#include <stdlib.h>	
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
+
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -33,6 +39,9 @@ bool firstMouse = true;
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
+
+ParticleGenerator *Particles;
+
 
 unsigned int loadCubemap(vector<std::string> faces)
 {
@@ -104,26 +113,23 @@ int main()
     }
     glEnable(GL_DEPTH_TEST);  
     
-    Shader ourShader("/home/flo/Virtual_Reality/shaders/vertex/3D.vs", "/home/flo/Virtual_Reality/shaders/fragment/light.fs"); // you can name your shader files however you like
-    Shader ourShaderThird("../shaders/vertex/model_loading.vs", "../shaders/fragment/model_loading.fs"); // you can name your shader files however you like
-    Shader ourShaderFourth("../shaders/vertex/cubemap.vs", "../shaders/fragment/cubemap.fs"); // you can name your shader files however you like
+    Shader lightShader("/home/flo/Virtual_Reality/shaders/vertex/3D.vs", "/home/flo/Virtual_Reality/shaders/fragment/light.fs"); // you can name your shader files however you like
+    Shader modelShader("../shaders/vertex/model_loading.vs", "../shaders/fragment/model_loading.fs"); // you can name your shader files however you like
+    Shader cubeMapShader("../shaders/vertex/cubemap.vs", "../shaders/fragment/cubemap.fs"); // you can name your shader files however you like
+    Shader particleShader("/home/flo/Virtual_Reality/shaders/vertex/particles.vs", "/home/flo/Virtual_Reality/shaders/fragment/particles.fs");
 
-    Model ourModel("/home/flo/Virtual_Reality/object/backpack.obj");
-    Model SecondModel("/home/flo/Virtual_Reality/object/tynanausore.obj");
-    Model mapModel("/home/flo/Virtual_Reality/object/map.obj");
-    Model tryModel("/home/flo/Virtual_Reality/object/try.obj");
+    Model backpackModel("/home/flo/Virtual_Reality/object/backpack.obj");
+    // Particle oneParticle("/home/flo/Virtual_Reality/object/tynanausore.obj");
+
+    Texture textureContainer("/home/flo/Virtual_Reality/image/container.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    Texture textureAwesomeFace("/home/flo/Virtual_Reality/image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    Texture textureParticles("/home/flo/Virtual_Reality/image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+
+    Particles = new ParticleGenerator(particleShader, textureParticles, 5000);
 
     glm::mat4 model = glm::mat4(1.0f);
 
-    float vertices[] = {
-        // positions          // colors           // texture coords
-        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, 0.0f,  0.0f, -1.0f,  // top right
-        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, 0.0f,  0.0f, -1.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,0.0f,  0.0f, -1.0f,   // bottom left
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f , 0.0f,  0.0f, -1.0f,  // top left 
-    };
-
-    float skyboxVertices[] = {
+    float cubeMapVertices[] = {
         // positions          
         -1.0f,  1.0f, -1.0f,
         -1.0f, -1.0f, -1.0f,
@@ -167,7 +173,7 @@ int main()
         -1.0f, -1.0f,  1.0f,
         1.0f, -1.0f,  1.0f
     };
-    float cube[] = {
+    float cubeVertices[] = {
     -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  0.0f, -1.0f,
      0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,1.0f, 0.0f,0.0f,  0.0f, -1.0f, 
      0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,1.0f, 1.0f,0.0f,  0.0f, -1.0f,
@@ -211,20 +217,6 @@ int main()
     -0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,0.0f, 1.0f,0.0f,  1.0f,  0.0f
 };
 
-    float verticesSecond[] = {
-        // positions         // colors
-        0.6f, -0.6f, 0.0f,  1.0f, 0.0f, 1.0f,  // bottom right
-        0.6f, -0.9f, 0.0f,  1.0f, 1.0f, 0.0f,  // bottom left
-        0.775f,  -0.7f, 0.0f,  0.0f, 1.0f, 1.0f   // top 
-    };
-    unsigned int indices[] = {  
-        1, 2, 3, 
-        0, 1, 3, 
-    };
-
-    unsigned int indicesSecond[] = {  
-        0, 1, 2, 
-    };
 
     glm::vec3 cubePositions[] = {
     glm::vec3( 0.0f,  0.0f,  0.0f), 
@@ -239,74 +231,49 @@ int main()
     glm::vec3(-1.3f,  1.0f, -1.5f)  
     };
 
-    VAO VAO1, VAO2, VAO3, skyboxVAO;
-	VAO1.Bind();
-	// Vertex Buffer object creation + linking to the vertices
-	VBO VBO1(vertices, sizeof(vertices));
-    // Element Buffer object creation + linking to the indices
-	EBO EBO1(indices, sizeof(indices));
-
-    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
-	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-
-    VAO1.Unbind();
-	VBO1.Unbind();
-	EBO1.Unbind();
-
-    VAO2.Bind();
-	VBO VBO2(verticesSecond, sizeof(verticesSecond));
-	EBO EBO2(indicesSecond, sizeof(indicesSecond));
-
-    VAO2.LinkAttrib(VBO2, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
-	VAO2.LinkAttrib(VBO2, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-
-    VAO2.Unbind();
-	VBO2.Unbind();
-	EBO2.Unbind();
-
-    VAO3.Bind();
-	VBO VBO3(cube, sizeof(cube));
-
-    VAO3.LinkAttrib(VBO3, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0);
-	VAO3.LinkAttrib(VBO3, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-    VAO3.LinkAttrib(VBO3, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-    VAO3.LinkAttrib(VBO3, 3, 3, GL_FLOAT, 11 * sizeof(float), (void*)(8 * sizeof(float)));
-
-    VAO3.Unbind();
-	VBO3.Unbind();
+    VAO LightBoxVAO, cubeMapVAO, particlesVAO;
+    LightBoxVAO.Bind();
+	VBO LightBoxVBO(cubeVertices, sizeof(cubeVertices));
+    LightBoxVAO.LinkAttrib(LightBoxVBO, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0);
+	LightBoxVAO.LinkAttrib(LightBoxVBO, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float)));
+    LightBoxVAO.LinkAttrib(LightBoxVBO, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float)));
+    LightBoxVAO.LinkAttrib(LightBoxVBO, 3, 3, GL_FLOAT, 11 * sizeof(float), (void*)(8 * sizeof(float)));
+    LightBoxVAO.Unbind();
+	LightBoxVBO.Unbind();
 
 
-    skyboxVAO.Bind();
-	VBO skyboxVBO(skyboxVertices, sizeof(skyboxVertices));
-
-    skyboxVAO.LinkAttrib(skyboxVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
-
-    skyboxVAO.Unbind();
-	skyboxVBO.Unbind();
-    Texture ourTexture_text("/home/flo/Virtual_Reality/image/container.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    Texture texture_text2("/home/flo/Virtual_Reality/image/container.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    cubeMapVAO.Bind();
+	VBO cubeMapVBO(cubeMapVertices, sizeof(cubeMapVertices));
+    cubeMapVAO.LinkAttrib(cubeMapVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
+    cubeMapVAO.Unbind();
+	cubeMapVBO.Unbind();
+  
 
     vector<std::string> faces
     {
-        "/home/flo/Virtual_Reality/image/container.jpg",
-        "/home/flo/Virtual_Reality/image/container.jpg",
-        "/home/flo/Virtual_Reality/image/container.jpg",
-        "/home/flo/Virtual_Reality/image/container.jpg",
-        "/home/flo/Virtual_Reality/image/container.jpg",
-        "/home/flo/Virtual_Reality/image/container.jpg"
+        "/home/flo/Virtual_Reality/cubeMap/NiagaraFalls3/posx.jpg",
+        "/home/flo/Virtual_Reality/cubeMap/NiagaraFalls3/negx.jpg",
+        "/home/flo/Virtual_Reality/cubeMap/NiagaraFalls3/negy.jpg",
+        "/home/flo/Virtual_Reality/cubeMap/NiagaraFalls3/posy.jpg",
+        "/home/flo/Virtual_Reality/cubeMap/NiagaraFalls3/posz.jpg",
+        "/home/flo/Virtual_Reality/cubeMap/NiagaraFalls3/negz.jpg"
     };
     unsigned int cubemapTexture = loadCubemap(faces); 
 
-    ourShader.Activate();
-    texture_text2.texUnit(ourShader, "ourTexture_text", 0);
-    texture_text2.texUnit(ourShader, "texture_text2", 1);
+    lightShader.Activate();
+    textureContainer.texUnit(lightShader, "textureContainer", 0);
+    textureAwesomeFace.texUnit(lightShader, "textureAwesomeFace", 1);
 
-    ourShaderThird.Activate();
-    glUniform1i(glGetUniformLocation(ourShaderThird.ID, "texture_diffuse5"), 1); // set it manually
+    modelShader.Activate();
+    glUniform1i(glGetUniformLocation(modelShader.ID, "texture_diffuse5"), 1); // set it manually
 
-    ourShaderFourth.Activate();
-    ourShaderFourth.setInt("skyboxY", 0);
+    particleShader.Activate();
+    glUniform1i(glGetUniformLocation(particleShader.ID, "texture_diffuse5"), 1); // set it manually
+
+
+    cubeMapShader.Activate();
+    cubeMapShader.setInt("skyboxY", 0);
+
 
     while (!glfwWindowShouldClose(window))
     {
@@ -321,9 +288,9 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glActiveTexture(GL_TEXTURE0);
-        ourTexture_text.Bind();
+        textureContainer.Bind();
         glActiveTexture(GL_TEXTURE1);
-        texture_text2.Bind();
+        textureAwesomeFace.Bind();
 
         
         glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
@@ -331,102 +298,119 @@ int main()
 
         // CUBEMAP
         glDepthMask(GL_FALSE);
-        ourShaderFourth.Activate();
+        cubeMapShader.Activate();
         glm::mat4 projectionY = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        ourShaderFourth.setMat4("projectionY", projectionY);
+        cubeMapShader.setMat4("projectionY", projectionY);
         glm::mat4 viewY = camera.GetViewMatrix();
         viewY = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-        ourShaderFourth.setMat4("viewY", viewY);
-        skyboxVAO.Bind();
+        cubeMapShader.setMat4("viewY", viewY);
+        cubeMapVAO.Bind();
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glDepthMask(GL_TRUE);
 
-        // NEW SHADER
-        ourShader.Activate();
-        ourShader.setVec3("viewPos", camera.Position); 
-        ourShader.setVec3("lightPos",  lightPos);
+        // LIGHT BOX
+        lightShader.Activate();
+        lightShader.setVec3("viewPos", camera.Position); 
+        lightShader.setVec3("lightPos",  lightPos);
         glm::mat4 projectionX = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        ourShader.setMat4("projectionX", projectionX);
+        lightShader.setMat4("projectionX", projectionX);
         glm::mat4 viewX = camera.GetViewMatrix();
-        ourShader.setMat4("viewX", viewX);
-
-        int modelLoc = glGetUniformLocation(ourShader.ID, "model");
+        lightShader.setMat4("viewX", viewX);
+        int modelLoc = glGetUniformLocation(lightShader.ID, "model");
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-        // LIGHT
-        VAO3.Bind();
+        LightBoxVAO.Bind();
         glm::mat4 trans3 = glm::mat4(1.0f);
         trans3 = glm::translate(trans3, lightPos);
         trans3 = glm::rotate(trans3, 0.0f, glm::vec3(1.0f, 0.0f, 1.0f));
-        ourShader.setVec3("lightColor",  1000.0f, 1000.0f, 1000.0f);
-        ourShader.setFloatReal("ambient",  1000.0f);
-        unsigned int transformLoc3 = glGetUniformLocation(ourShader.ID, "transform_text");
+        lightShader.setVec3("lightColor",  100.0f, 100.0f, 100.0f);
+        lightShader.setFloatReal("ambient",  100.0f);
+        unsigned int transformLoc3 = glGetUniformLocation(lightShader.ID, "transform_text");
         glUniformMatrix4fv(transformLoc3, 1, GL_FALSE, glm::value_ptr(trans3));
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        // glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        // RED BOX
-        ourShader.setFloatReal("ambient",  0.1f); //sin((float)glfwGetTime()) + 1);
+        // SMALL BOXES
+        lightShader.setFloatReal("ambient",  0.1f); //sin((float)glfwGetTime()) + 1);
         for(unsigned int i = 0; i < 2; i++)
         {   
             glm::mat4 trans3 = glm::mat4(1.0f);
             trans3 = glm::translate(trans3, glm::vec3(-0.0f, -0.0f, -0.0f));
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
+            glm::mat4 cubeModel = glm::mat4(1.0f);
+            cubeModel = glm::translate(cubeModel, cubePositions[i]);
             float angle = 20.0f * i; 
             if (i%2) {
-                ourShader.setVec3("lightColor",  0.0f, 1.0f, 0.0f);
-                model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+                lightShader.setVec3("lightColor",  0.0f, 1.0f, 0.0f);
+                cubeModel = glm::rotate(cubeModel, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
                 trans3 = glm::rotate(trans3, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(1.0f, 1.0f, 1.0f));
             }
             else{
-                ourShader.setVec3("lightColor",  1.0f, 0.0f, 0.0f);
-                model = glm::rotate(model, 0.0f, glm::vec3(1.0f, 0.3f, 0.5f));
+                lightShader.setVec3("lightColor",  1.0f, 0.0f, 0.0f);
+                cubeModel = glm::rotate(cubeModel, 0.0f, glm::vec3(1.0f, 0.3f, 0.5f));
                 trans3 = glm::rotate(trans3, 0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
             }
-            ourShader.setMat4("model", model);
+            lightShader.setMat4("model", cubeModel);
 
-            unsigned int transformLoc3 = glGetUniformLocation(ourShader.ID, "transform_text");
+            unsigned int transformLoc3 = glGetUniformLocation(lightShader.ID, "transform_text");
             glUniformMatrix4fv(transformLoc3, 1, GL_FALSE, glm::value_ptr(trans3));
 
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            // glDrawArrays(GL_TRIANGLES, 0, 36);
+           
         }
 
-        // MODEL
-        ourShaderThird.Activate();
+        
 
+
+
+        // particleShader.Activate();
+        // glm::mat4 projection6 = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        // glm::mat4 view6 = camera.GetViewMatrix();
+        // particleShader.setMat4("projection6", projection6);
+        // particleShader.setMat4("view6", view6);
+        // glm::mat4 particle = glm::mat4(1.0f);
+        // particleShader.setVec3("lightColor5",  1.0f, 1.0f, 0.0f);
+        // particleShader.setFloatReal("ambient5",  1.0f);
+        // glm::mat4 trans5 = glm::mat4(1.0f);
+        // trans5 = glm::translate(trans3, glm::vec3(-0.0f, -0.0f, -0.0f));
+        // trans5 = glm::rotate(trans5, 0.0f, glm::vec3(0.0f, 0.0f, 0.0f));   
+        // particle = glm::translate(particle, glm::vec3(4.2f, 4.0f, 4.0f)); // translate it down so it's at the center of the scene
+        // particle= glm::scale(particle, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
+        // particleShader.setMat4("model5", particle);
+        // oneParticle.drawParticle(particleShader);
+
+        // MODEL BACKPACK
+        modelShader.Activate();
         glm::mat4 projection5 = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view5 = camera.GetViewMatrix();
-        ourShaderThird.setMat4("projection5", projection5);
-        ourShaderThird.setMat4("view5", view5);
-        glm::mat4 model5 = glm::mat4(1.0f);
-        ourShaderThird.setVec3("lightColor5",  1.0f, 1.0f, 1.0f);
-        ourShaderThird.setFloatReal("ambient5",  1.0f);
+        modelShader.setMat4("projection5", projection5);
+        modelShader.setMat4("view5", view5);
+        glm::mat4 modelBackPack = glm::mat4(1.0f);
+        modelShader.setVec3("lightColor5",  1.0f, 1.0f, 1.0f);
+        modelShader.setFloatReal("ambient5",  1.0f);
         glm::mat4 trans4 = glm::mat4(1.0f);
         trans4 = glm::translate(trans3, glm::vec3(-0.0f, -0.0f, -0.0f));
-        trans4 = glm::rotate(trans4, 0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+        trans4 = glm::rotate(trans4, 0.0f, glm::vec3(1.0f, 1.0f, 1.0f));   
+        modelBackPack = glm::translate(modelBackPack, glm::vec3(4.2f, 4.0f, 4.0f)); // translate it down so it's at the center of the scene
+        modelBackPack= glm::scale(modelBackPack, glm::vec3(0.005f, 0.005f, 0.005f));	// it's a bit too big for our scene, so scale it down
+        modelShader.setMat4("model5", modelBackPack);
+        backpackModel.Draw(modelShader);
 
-        
-        model5 = glm::translate(model5, glm::vec3(2.2f, 1.0f, 2.0f)); // translate it down so it's at the center of the scene
-        model5= glm::scale(model5, glm::vec3(0.005f, 0.005f, 0.005f));	// it's a bit too big for our scene, so scale it down
-        ourShaderThird.setMat4("model5", model5);
-        ourModel.Draw(ourShaderThird);
-      
+        // PARTICLES
+        particleShader.Activate();
+        glm::mat4 projectionPart = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 viewPart = camera.GetViewMatrix();
+        particleShader.setMat4("projectionPart", projectionPart);
+        particleShader.setMat4("viewPart", viewPart);   
+        Particles->Draw(); 
+        Particles->Update(deltaTime, 2000, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+ 
         
         glfwSwapBuffers(window);
+
         glfwPollEvents();
         glfwSwapInterval(1);
     }
-
-
-    EBO1.Delete();
-    EBO2.Delete();
-    VAO1.Delete();
-    VAO2.Delete();
-    VAO3.Delete();
-	VBO1.Delete();
-    VBO2.Delete();
-    VBO3.Delete();
+    LightBoxVAO.Delete();
+    LightBoxVBO.Delete();
     std::cout << "k13" << std::endl;
     glfwTerminate();
     return 0;
