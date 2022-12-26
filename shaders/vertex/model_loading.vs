@@ -8,9 +8,10 @@ out vec2 TexCoords5;
 uniform mat4 model5;
 uniform mat4 view5;
 uniform mat4 projection5;
+uniform mat4 transModel;
 
 void main()
 {
     TexCoords5 = aTexCoords5;    
-    gl_Position = projection5 * view5 * model5 * vec4(aPos5, 1.0);
+    gl_Position = projection5 * view5 * model5 * transModel* vec4(aPos5, 1.0);
 }

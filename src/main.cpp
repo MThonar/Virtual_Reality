@@ -75,6 +75,20 @@ unsigned int loadCubemap(vector<std::string> faces)
     return textureID;
 } 
 
+bool CheckCollision(glm::vec4 Position_1, glm::vec4 Position_2, float radius_1, float radius_2) // AABB - AABB collision
+{
+    // collision x-axis?
+    bool collisionX = Position_1.x + radius_1 >= Position_2.x &&
+        Position_2.x + radius_2 >= Position_1.x;
+    // collision y-axis?
+    bool collisionY = Position_1.y + radius_1 >= Position_2.y &&
+        Position_2.y + radius_2 >= Position_1.y;
+    // collision only if on both axes
+    bool collisionZ = Position_1.z + radius_1 >= Position_2.z &&
+        Position_2.z + radius_2 >= Position_1.z;
+    return collisionX && collisionY && collisionZ;
+} 
+
 int main()
 {
     // glfw: initialize and configure
@@ -112,22 +126,29 @@ int main()
         return -1;
     }
     glEnable(GL_DEPTH_TEST);  
-    
-    Shader lightShader("/home/flo/Virtual_Reality/shaders/vertex/3D.vs", "/home/flo/Virtual_Reality/shaders/fragment/light.fs"); // you can name your shader files however you like
-    Shader modelShader("../shaders/vertex/model_loading.vs", "../shaders/fragment/model_loading.fs"); // you can name your shader files however you like
-    Shader cubeMapShader("../shaders/vertex/cubemap.vs", "../shaders/fragment/cubemap.fs"); // you can name your shader files however you like
-    Shader particleShader("/home/flo/Virtual_Reality/shaders/vertex/particles.vs", "/home/flo/Virtual_Reality/shaders/fragment/particles.fs");
 
-    Model backpackModel("/home/flo/Virtual_Reality/object/backpack.obj");
-    // Particle oneParticle("/home/flo/Virtual_Reality/object/tynanausore.obj");
 
-    Texture textureContainer("/home/flo/Virtual_Reality/image/container.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    Texture textureAwesomeFace("/home/flo/Virtual_Reality/image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    Texture textureParticles("/home/flo/Virtual_Reality/image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    Shader lightShader("../shaders/vertex/3D.vs", "../shaders/fragment/light.fs"); // you can name your shader files however you like
+    Shader ModelShader("../shaders/vertex/model_loading.vs", "../shaders/fragment/model_loading.fs"); // you can name your shader files however you like
+    Shader CubemapShader("../shaders/vertex/cubemap.vs", "../shaders/fragment/cubemap.fs"); // you can name your shader files however you like
+    Shader particleShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
+
+
+    //
+    Model BeachBallModel("../object/beachball/beachball.obj");
+    Model BeachBallModel_2("../object/beachball/beachball.obj");
+    stbi_set_flip_vertically_on_load(true);
+    Model BackpackModel("../object/backpack/backpack.obj");
+
+    Texture textureContainer("../image/container.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    Texture textureAwesomeFace("../image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    Texture textureParticles("../image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 
     Particles = new ParticleGenerator(particleShader, textureParticles, 5000);
 
     glm::mat4 model = glm::mat4(1.0f);
+
+
 
     float cubeMapVertices[] = {
         // positions          
@@ -218,6 +239,7 @@ int main()
 };
 
 
+
     glm::vec3 cubePositions[] = {
     glm::vec3( 0.0f,  0.0f,  0.0f), 
     glm::vec3( 2.0f,  5.0f, -15.0f), 
@@ -231,6 +253,8 @@ int main()
     glm::vec3(-1.3f,  1.0f, -1.5f)  
     };
 
+   
+
     VAO LightBoxVAO, cubeMapVAO, particlesVAO;
     LightBoxVAO.Bind();
 	VBO LightBoxVBO(cubeVertices, sizeof(cubeVertices));
@@ -242,39 +266,44 @@ int main()
 	LightBoxVBO.Unbind();
 
 
+
     cubeMapVAO.Bind();
 	VBO cubeMapVBO(cubeMapVertices, sizeof(cubeMapVertices));
     cubeMapVAO.LinkAttrib(cubeMapVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
     cubeMapVAO.Unbind();
 	cubeMapVBO.Unbind();
-  
+    
+
 
     vector<std::string> faces
     {
-        "/home/flo/Virtual_Reality/cubeMap/NiagaraFalls3/posx.jpg",
-        "/home/flo/Virtual_Reality/cubeMap/NiagaraFalls3/negx.jpg",
-        "/home/flo/Virtual_Reality/cubeMap/NiagaraFalls3/negy.jpg",
-        "/home/flo/Virtual_Reality/cubeMap/NiagaraFalls3/posy.jpg",
-        "/home/flo/Virtual_Reality/cubeMap/NiagaraFalls3/posz.jpg",
-        "/home/flo/Virtual_Reality/cubeMap/NiagaraFalls3/negz.jpg"
+        "../cubeMap/NiagaraFalls3/posx.jpg",
+        "../cubeMap/NiagaraFalls3/negx.jpg",
+        "../cubeMap/NiagaraFalls3/negy.jpg",
+        "../cubeMap/NiagaraFalls3/posy.jpg",
+        "../cubeMap/NiagaraFalls3/posz.jpg",
+        "../cubeMap/NiagaraFalls3/negz.jpg"
     };
     unsigned int cubemapTexture = loadCubemap(faces); 
 
     lightShader.Activate();
-    textureContainer.texUnit(lightShader, "textureContainer", 0);
-    textureAwesomeFace.texUnit(lightShader, "textureAwesomeFace", 1);
 
-    modelShader.Activate();
-    glUniform1i(glGetUniformLocation(modelShader.ID, "texture_diffuse5"), 1); // set it manually
+    textureContainer.texUnit(lightShader, "ourTexture_text", 0);
+    textureAwesomeFace.texUnit(lightShader, "texture_text2", 1);
 
+    ModelShader.Activate();
+    glUniform1i(glGetUniformLocation(ModelShader.ID, "texture_diffuse5"), 1); // set it manually
+    
     particleShader.Activate();
     glUniform1i(glGetUniformLocation(particleShader.ID, "texture_diffuse5"), 1); // set it manually
 
 
-    cubeMapShader.Activate();
-    cubeMapShader.setInt("skyboxY", 0);
-
-
+    CubemapShader.Activate();
+    CubemapShader.setInt("skyboxY", 0);
+    float angle = glm::radians(50.0f);
+    float X = 0.0f;
+    float Y = 0.0f;
+    float Z = 0.0f;
     while (!glfwWindowShouldClose(window))
     {
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -298,18 +327,22 @@ int main()
 
         // CUBEMAP
         glDepthMask(GL_FALSE);
-        cubeMapShader.Activate();
+
+        CubemapShader.Activate();
         glm::mat4 projectionY = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        cubeMapShader.setMat4("projectionY", projectionY);
+        CubemapShader.setMat4("projectionY", projectionY);
         glm::mat4 viewY = camera.GetViewMatrix();
         viewY = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-        cubeMapShader.setMat4("viewY", viewY);
+        CubemapShader.setMat4("viewY", viewY);
         cubeMapVAO.Bind();
+
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glDepthMask(GL_TRUE);
 
+
         // LIGHT BOX
+
         lightShader.Activate();
         lightShader.setVec3("viewPos", camera.Position); 
         lightShader.setVec3("lightPos",  lightPos);
@@ -317,19 +350,25 @@ int main()
         lightShader.setMat4("projectionX", projectionX);
         glm::mat4 viewX = camera.GetViewMatrix();
         lightShader.setMat4("viewX", viewX);
+
         int modelLoc = glGetUniformLocation(lightShader.ID, "model");
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         LightBoxVAO.Bind();
+
         glm::mat4 trans3 = glm::mat4(1.0f);
         trans3 = glm::translate(trans3, lightPos);
         trans3 = glm::rotate(trans3, 0.0f, glm::vec3(1.0f, 0.0f, 1.0f));
+
         lightShader.setVec3("lightColor",  100.0f, 100.0f, 100.0f);
         lightShader.setFloatReal("ambient",  100.0f);
+
         unsigned int transformLoc3 = glGetUniformLocation(lightShader.ID, "transform_text");
         glUniformMatrix4fv(transformLoc3, 1, GL_FALSE, glm::value_ptr(trans3));
-        // glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
 
         // SMALL BOXES
+
         lightShader.setFloatReal("ambient",  0.1f); //sin((float)glfwGetTime()) + 1);
         for(unsigned int i = 0; i < 2; i++)
         {   
@@ -340,59 +379,27 @@ int main()
             float angle = 20.0f * i; 
             if (i%2) {
                 lightShader.setVec3("lightColor",  0.0f, 1.0f, 0.0f);
+
                 cubeModel = glm::rotate(cubeModel, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+
                 trans3 = glm::rotate(trans3, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(1.0f, 1.0f, 1.0f));
             }
             else{
                 lightShader.setVec3("lightColor",  1.0f, 0.0f, 0.0f);
+
                 cubeModel = glm::rotate(cubeModel, 0.0f, glm::vec3(1.0f, 0.3f, 0.5f));
                 trans3 = glm::rotate(trans3, 0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
             }
             lightShader.setMat4("model", cubeModel);
 
+
             unsigned int transformLoc3 = glGetUniformLocation(lightShader.ID, "transform_text");
             glUniformMatrix4fv(transformLoc3, 1, GL_FALSE, glm::value_ptr(trans3));
 
-            // glDrawArrays(GL_TRIANGLES, 0, 36);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
            
         }
 
-        
-
-
-
-        // particleShader.Activate();
-        // glm::mat4 projection6 = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        // glm::mat4 view6 = camera.GetViewMatrix();
-        // particleShader.setMat4("projection6", projection6);
-        // particleShader.setMat4("view6", view6);
-        // glm::mat4 particle = glm::mat4(1.0f);
-        // particleShader.setVec3("lightColor5",  1.0f, 1.0f, 0.0f);
-        // particleShader.setFloatReal("ambient5",  1.0f);
-        // glm::mat4 trans5 = glm::mat4(1.0f);
-        // trans5 = glm::translate(trans3, glm::vec3(-0.0f, -0.0f, -0.0f));
-        // trans5 = glm::rotate(trans5, 0.0f, glm::vec3(0.0f, 0.0f, 0.0f));   
-        // particle = glm::translate(particle, glm::vec3(4.2f, 4.0f, 4.0f)); // translate it down so it's at the center of the scene
-        // particle= glm::scale(particle, glm::vec3(0.05f, 0.05f, 0.05f));	// it's a bit too big for our scene, so scale it down
-        // particleShader.setMat4("model5", particle);
-        // oneParticle.drawParticle(particleShader);
-
-        // MODEL BACKPACK
-        modelShader.Activate();
-        glm::mat4 projection5 = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view5 = camera.GetViewMatrix();
-        modelShader.setMat4("projection5", projection5);
-        modelShader.setMat4("view5", view5);
-        glm::mat4 modelBackPack = glm::mat4(1.0f);
-        modelShader.setVec3("lightColor5",  1.0f, 1.0f, 1.0f);
-        modelShader.setFloatReal("ambient5",  1.0f);
-        glm::mat4 trans4 = glm::mat4(1.0f);
-        trans4 = glm::translate(trans3, glm::vec3(-0.0f, -0.0f, -0.0f));
-        trans4 = glm::rotate(trans4, 0.0f, glm::vec3(1.0f, 1.0f, 1.0f));   
-        modelBackPack = glm::translate(modelBackPack, glm::vec3(4.2f, 4.0f, 4.0f)); // translate it down so it's at the center of the scene
-        modelBackPack= glm::scale(modelBackPack, glm::vec3(0.005f, 0.005f, 0.005f));	// it's a bit too big for our scene, so scale it down
-        modelShader.setMat4("model5", modelBackPack);
-        backpackModel.Draw(modelShader);
 
         // PARTICLES
         particleShader.Activate();
@@ -403,15 +410,78 @@ int main()
         Particles->Draw(); 
         Particles->Update(deltaTime, 2000, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
  
+        // MODEL BACKPACK
+        ModelShader.Activate();
+        glm::mat4 projection5 = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view5 = camera.GetViewMatrix();
+        ModelShader.setMat4("projection5", projection5);
+        ModelShader.setMat4("view5", view5);
+
+        glm::mat4 model5 = glm::mat4(1.0f);
+        glm::mat4 bb_model = glm::mat4(1.0f);
+        glm::mat4 backpack_model = glm::mat4(1.0f);
+
+        float time = (float)glfwGetTime();
+        if(glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS){
+            angle += 0.01f;
+        }
+        if(glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS){
+            angle -= 0.01f;
+        }
+         if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+            Y += 0.01f;
+        }
+         if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+            Y -= 0.01f;
+        }
+         if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+            X -= 0.01f;
+        }
+         if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+            X += 0.01f;
+        }
+        glm::mat4 trans5 = glm::mat4(1.0f);
+        trans5 = glm::rotate(trans5, (float)glfwGetTime() * glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+        model5 = glm::rotate(model5, angle, glm::vec3(1.0f, 0.0f, 0.0f));
+        model5 = glm::translate(model5, glm::vec3(X, Y, Z)); // translate it down so it's at the center of the scene
+        model5= glm::scale(model5, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        unsigned int transformLocball = glGetUniformLocation(ModelShader.ID, "transModel");
+        glUniformMatrix4fv(transformLocball, 1, GL_FALSE, glm::value_ptr(trans5));
+        ModelShader.setMat4("model5", model5);
+        BeachBallModel.Draw(ModelShader);
+
+        bb_model = glm::translate(bb_model, glm::vec3(-2.2f, 4.0f, 0.0f)); // translate it down so it's at the center of the scene
+        bb_model= glm::scale(bb_model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        ModelShader.setMat4("model5", bb_model);
+        BeachBallModel_2.Draw(ModelShader);
+
+        bool collision;
+        glm::vec3 Pos5 = glm::vec3(1.0f, 1.0f, 1.0f);
+        glm::vec4 position_of_first_ball =  model5 * glm::vec4(Pos5, 1.0);
+        glm::vec4 position_of_second_ball = bb_model * glm::vec4(Pos5, 1.0);
+
+        collision = CheckCollision(position_of_first_ball, position_of_second_ball, 1.85f, 1.85f);
+        if (collision){
+            backpack_model= glm::scale(backpack_model, glm::vec3(0.3f, 0.3f, 0.3f));	// it's a bit too big for our scene, so scale it down
+        }
+        else{
+            backpack_model= glm::scale(backpack_model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        }
+
+        backpack_model = glm::translate(backpack_model, glm::vec3(-2.2f, 0.0f, 3.0f)); // translate it down so it's at the center of the scene
+        ModelShader.setMat4("model5", backpack_model);
+        BackpackModel.Draw(ModelShader);
+
         
         glfwSwapBuffers(window);
 
         glfwPollEvents();
         glfwSwapInterval(1);
     }
+
     LightBoxVAO.Delete();
     LightBoxVBO.Delete();
-    std::cout << "k13" << std::endl;
+
     glfwTerminate();
     return 0;
 }
