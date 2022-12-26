@@ -255,6 +255,31 @@ int main()
 
    
 
+    unsigned int particleVBO;
+    unsigned int particleVAO;
+    float particle_quad[] = {
+        0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+ 
+        0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f
+    }; 
+
+    std::vector<Particle> particles;
+    glGenVertexArrays(1, &particleVAO);
+    glGenBuffers(1, &particleVBO);
+    glBindVertexArray(particleVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, particleVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(particle_quad), particle_quad, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 6, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    glBindVertexArray(0);   
+
+
     VAO LightBoxVAO, cubeMapVAO, particlesVAO;
     LightBoxVAO.Bind();
 	VBO LightBoxVBO(cubeVertices, sizeof(cubeVertices));
@@ -397,7 +422,6 @@ int main()
             glUniformMatrix4fv(transformLoc3, 1, GL_FALSE, glm::value_ptr(trans3));
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
-           
         }
 
 
