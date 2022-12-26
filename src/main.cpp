@@ -133,8 +133,6 @@ int main()
     Shader CubemapShader("../shaders/vertex/cubemap.vs", "../shaders/fragment/cubemap.fs"); // you can name your shader files however you like
     Shader particleShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
 
-
-    //
     Model BeachBallModel("../object/beachball/beachball.obj");
     Model BeachBallModel_2("../object/beachball/beachball.obj");
     stbi_set_flip_vertically_on_load(true);
@@ -144,7 +142,7 @@ int main()
     Texture textureAwesomeFace("../image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     Texture textureParticles("../image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 
-    Particles = new ParticleGenerator(particleShader, textureParticles, 5000);
+    Particles = new ParticleGenerator(particleShader, textureParticles, 200);
 
     glm::mat4 model = glm::mat4(1.0f);
 
@@ -403,16 +401,16 @@ int main()
 
         // PARTICLES
         particleShader.Activate();
-        
+        Particles->Update(deltaTime, 300, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
         Particles->Draw(); 
         glm::mat4 projectionPart = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 viewPart = camera.GetViewMatrix();
         particleShader.setMat4("projectionPart", projectionPart);
         particleShader.setMat4("viewPart", viewPart); 
         glm::mat4 modelPart = glm::mat4(1.0f);
-        modelPart = glm::translate(modelPart, glm::vec3(0.0f, 0.0f, 0.0f));
+        modelPart = glm::translate(modelPart, glm::vec3(1.0f, 1.0f, 1.0f));
         particleShader.setMat4("modelPart", modelPart);
-        Particles->Update(deltaTime, 200, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+        
  
         // MODEL BACKPACK
         ModelShader.Activate();
