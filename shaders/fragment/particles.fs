@@ -7,5 +7,6 @@ uniform sampler2D sprite;
 
 void main()
 {
-    color = (texture(sprite, TexCoords) * ParticleColor);
+    // color = (texture(sprite, TexCoords) * ParticleColor);
+    color = vec4(0.0f, 1.0f, 0.0f, 1.0f);
 } 
