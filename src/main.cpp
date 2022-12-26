@@ -443,13 +443,13 @@ int main()
             X += 0.01f;
         }
         glm::mat4 trans5 = glm::mat4(1.0f);
-        trans5 = glm::rotate(trans5, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+        trans5 = glm::rotate(trans5, (float)glfwGetTime() * glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
         model5 = glm::rotate(model5, angle, glm::vec3(1.0f, 0.0f, 0.0f));
         model5 = glm::translate(model5, glm::vec3(X, Y, Z)); // translate it down so it's at the center of the scene
         model5= glm::scale(model5, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         unsigned int transformLocball = glGetUniformLocation(ModelShader.ID, "transModel");
-        //  glUniformMatrix4fv(transformLocball, 1, GL_FALSE, glm::value_ptr(trans5));
-        // ModelShader.setMat4("model5", model5);
+        glUniformMatrix4fv(transformLocball, 1, GL_FALSE, glm::value_ptr(trans5));
+        ModelShader.setMat4("model5", model5);
         BeachBallModel.Draw(ModelShader);
 
         bb_model = glm::translate(bb_model, glm::vec3(-2.2f, 4.0f, 0.0f)); // translate it down so it's at the center of the scene
@@ -473,6 +473,7 @@ int main()
         backpack_model = glm::translate(backpack_model, glm::vec3(-2.2f, 0.0f, 3.0f)); // translate it down so it's at the center of the scene
         ModelShader.setMat4("model5", backpack_model);
         BackpackModel.Draw(ModelShader);
+        
         glfwSwapBuffers(window);
         glfwPollEvents();
         glfwSwapInterval(1);
@@ -485,7 +486,6 @@ int main()
 	VBO1.Delete();
     VBO2.Delete();
     VBO3.Delete();
-    std::cout << "k13" << std::endl;
     glfwTerminate();
     return 0;
 }
