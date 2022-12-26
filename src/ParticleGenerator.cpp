@@ -18,7 +18,7 @@ void ParticleGenerator::Update(float dt, unsigned int newParticles, glm::vec3 of
     for (unsigned int i = 0; i < this->amount; ++i)
     {
         Particle &p = this->particles[i];
-        p.Life -= dt/10000; // reduce life
+        p.Life -= dt; // reduce life
         if (p.Life > 0.0f) // check if particle alive
         {	
             p.Position -= p.Velocity * dt; 
@@ -50,13 +50,12 @@ void ParticleGenerator::init()
 {
     unsigned int particleVBO;
     float particle_quad[] = {
-        0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
         1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
- 
-        0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-        1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-        1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f
+        0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f
     }; 
     glGenVertexArrays(1, &this->particleVAO);
     glGenBuffers(1, &particleVBO);
@@ -103,6 +102,6 @@ void ParticleGenerator::respawnParticle(Particle &particle, glm::vec3 offset,glm
     particle.Position = position + random + offset;
     particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
     particle.Life = 100.0f;
-    particle.Velocity =  glm::vec3(0.1f,0.1f,0.1f);
+    particle.Velocity =  glm::vec3(0.0f,0.0f,0.0f);
 
 }
