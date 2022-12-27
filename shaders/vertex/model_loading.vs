@@ -1,17 +1,17 @@
 #version 330 core
-layout (location = 0) in vec3 aPos5;
-layout (location = 1) in vec3 aNormal5;
-layout (location = 2) in vec2 aTexCoords5;
+layout (location = 0) in vec3 pos;
+layout (location = 1) in vec3 norm;
+layout (location = 2) in vec2 texCoord;
 
-out vec2 TexCoords5;
+out vec2 TexCoords;
 
-uniform mat4 model5;
-uniform mat4 view5;
-uniform mat4 projection5;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 uniform mat4 transModel;
 
 void main()
 {
-    TexCoords5 = aTexCoords5;    
-    gl_Position = projection5 * view5 * model5 * transModel* vec4(aPos5, 1.0);
+    TexCoords = texCoord;    
+    gl_Position = projection * view * model * transModel* vec4(pos, 1.0);
 }

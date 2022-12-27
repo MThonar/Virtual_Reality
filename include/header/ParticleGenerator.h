@@ -26,7 +26,7 @@ class ParticleGenerator
 {
 public:
     // constructor
-    ParticleGenerator(Shader shader, Texture texture, unsigned int amount, glm::vec3 velocity);
+    ParticleGenerator(Shader shader, unsigned int amount, glm::vec3 velocity);
     // update all particles
     void Update(float dt,  unsigned int newParticles, glm::vec3 offset,  glm::vec3 position);
     // render all particles
@@ -38,7 +38,6 @@ private:
     glm::vec3 velocity;
     // render state
     Shader particleShader;
-    Texture particleTexture;
     unsigned int particleVAO;
     // initializes buffer and vertex attributes
     void init();
