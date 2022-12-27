@@ -133,6 +133,7 @@ int main()
     Shader lightShader("../shaders/vertex/3D.vs", "../shaders/fragment/light.fs"); // you can name your shader files however you like
     Shader ModelShader("../shaders/vertex/model_loading.vs", "../shaders/fragment/model_loading.fs"); // you can name your shader files however you like
     Shader CubemapShader("../shaders/vertex/cubemap.vs", "../shaders/fragment/cubemap.fs"); // you can name your shader files however you like
+    Shader rainShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
     Shader particleShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
 
     Model BeachBallModel("../object/beachball/beachball.obj");
@@ -145,8 +146,8 @@ int main()
     Texture textureAwesomeFace("../image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     Texture textureParticles("../image/fireTexture.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 
-    rain = new ParticleGenerator(particleShader, textureParticles, 200, glm::vec3(0.0f,0.4f,0.0f));
-    particleBall = new ParticleGenerator(lightShader, textureParticles, 200, glm::vec3(0.0f,0.0f,0.0f));
+    rain = new ParticleGenerator(rainShader, textureParticles, 200, glm::vec3(0.0f,0.4f,0.0f));
+    particleBall = new ParticleGenerator(particleShader, textureParticles, 200, glm::vec3(0.0f,0.0f,0.0f));
 
     glm::mat4 model = glm::mat4(1.0f);
 
@@ -188,6 +189,9 @@ int main()
     ModelShader.Activate();
     glUniform1i(glGetUniformLocation(ModelShader.ID, "texture_diffuse5"), 1); // set it manually
     
+    rainShader.Activate();
+    glUniform1i(glGetUniformLocation(rainShader.ID, "texture_diffuse5"), 1); // set it manually
+
     particleShader.Activate();
     glUniform1i(glGetUniformLocation(particleShader.ID, "texture_diffuse5"), 1); // set it manually
 
@@ -252,7 +256,7 @@ int main()
 
         unsigned int transformLoc3 = glGetUniformLocation(lightShader.ID, "transform_text");
         glUniformMatrix4fv(transformLoc3, 1, GL_FALSE, glm::value_ptr(trans3));
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        // glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
         // SMALL BOXES
@@ -284,7 +288,7 @@ int main()
             unsigned int transformLoc3 = glGetUniformLocation(lightShader.ID, "transform_text");
             glUniformMatrix4fv(transformLoc3, 1, GL_FALSE, glm::value_ptr(trans3));
 
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            // glDrawArrays(GL_TRIANGLES, 0, 36);
            
         }
  
@@ -348,7 +352,7 @@ int main()
 
         backpack_model = glm::translate(backpack_model, glm::vec3(-2.2f, 0.0f, 3.0f)); // translate it down so it's at the center of the scene
         ModelShader.setMat4("model5", backpack_model);
-        BackpackModel.Draw(ModelShader);
+        // BackpackModel.Draw(ModelShader);
 
         // MODEL CLOUD
         glm::vec3 cloudPosition = glm::vec3(3.0f, 1.0f, 3.0f);
@@ -363,18 +367,18 @@ int main()
         CloudModel.Draw(ModelShader);
 
         // RAIN
-        particleShader.Activate();
+        rainShader.Activate();
         rain->Update(deltaTime, 300, glm::vec3(0.2f, -0.7f, 0.0f), cloudPosition);
         rain->Draw(); 
         glm::mat4 projectionRain = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 viewRain = camera.GetViewMatrix();
-        particleShader.setMat4("projectionPart", projectionRain);
-        particleShader.setMat4("viewPart", viewRain); 
+        rainShader.setMat4("projectionPart", projectionRain);
+        rainShader.setMat4("viewPart", viewRain); 
+        glm::vec4 colRain(0.0f, 0.0f, 1.0f, 1.0f);
+        rainShader.setVec4("colorPart", colRain);
         glm::mat4 modelRain = glm::mat4(1.0f);
-        particleShader.setMat4("modelPart", modelRain);
+        rainShader.setMat4("modelPart", modelRain);
         
-
-
         // PARTICLES BALL
         particleShader.Activate();
         particleBall->Update(deltaTime, 300, glm::vec3(-1.0f, 1.0f, 0.0f), glm::vec3(X, Y, Z));
@@ -383,6 +387,8 @@ int main()
         glm::mat4 viewPart = camera.GetViewMatrix();
         particleShader.setMat4("projectionPart", projectionPart);
         particleShader.setMat4("viewPart", viewPart); 
+        glm::vec4 colPart(1.0f, 1.0f, 1.0f, 1.0f);
+        particleShader.setVec4("colorPart", colPart);
         glm::mat4 modelPart = glm::mat4(1.0f);
         particleShader.setMat4("modelPart", modelPart);
         
