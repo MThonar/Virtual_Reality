@@ -18,11 +18,12 @@ void ParticleGenerator::Update(float dt, unsigned int newParticles, glm::vec3 of
     for (unsigned int i = 0; i < this->amount; ++i)
     {
         Particle &p = this->particles[i];
-        p.Life -= dt; // reduce life
+        p.Life -= dt;
+        // p.Life -= dt*((rand() % 100) / 100.0f); // reduce life randomly
         if (p.Life > 0.0f) // check if particle alive
         {	
             p.Position -= p.Velocity * dt; 
-            p.Color.a -= dt * 2.5f;
+            // p.Color.a -= dt * 2.5f;
         }
     }
 }
@@ -101,7 +102,7 @@ void ParticleGenerator::respawnParticle(Particle &particle, glm::vec3 offset,glm
     float rColor = 0.5f + ((rand() % 100) / 100.0f);
     particle.Position = position + yes + offset;
     particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
-    particle.Life = 0.5f;
-    particle.Velocity =  glm::vec3(0.0f,0.0f,0.0f);
+    particle.Life = 2.0f + ((rand() % 100) / 100.0f);
+    particle.Velocity =  glm::vec3(0.0f,0.1f,0.0f);
 
 }

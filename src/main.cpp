@@ -138,10 +138,11 @@ int main()
     Model BeachBallModel_2("../object/beachball/beachball.obj");
     stbi_set_flip_vertically_on_load(true);
     Model BackpackModel("../object/backpack/backpack.obj");
+    Model CloudModel("../object/CloudModel.obj");
 
     Texture textureContainer("../image/container.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     Texture textureAwesomeFace("../image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    Texture textureParticles("../image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    Texture textureParticles("../image/fireTexture.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 
     Particles = new ParticleGenerator(particleShader, textureParticles, 200);
 
@@ -290,20 +291,6 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 36);
            
         }
-
-
-        // PARTICLES
-        particleShader.Activate();
-        Particles->Update(deltaTime, 300, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-        Particles->Draw(); 
-        glm::mat4 projectionPart = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 viewPart = camera.GetViewMatrix();
-        particleShader.setMat4("projectionPart", projectionPart);
-        particleShader.setMat4("viewPart", viewPart); 
-        glm::mat4 modelPart = glm::mat4(1.0f);
-        modelPart = glm::translate(modelPart, glm::vec3(1.0f, 1.0f, 1.0f));
-        particleShader.setMat4("modelPart", modelPart);
-        
  
         // MODEL BACKPACK
         ModelShader.Activate();
@@ -367,9 +354,31 @@ int main()
         ModelShader.setMat4("model5", backpack_model);
         BackpackModel.Draw(ModelShader);
 
+        // MODEL CLOUD
+        glm::vec3 cloudPosition = glm::vec3(3.0f, 1.0f, 3.0f);
+        ModelShader.Activate();
+        ModelShader.setMat4("projection5", projection5);
+        ModelShader.setMat4("view5", view5);
+        glm::mat4 modelCloud = glm::mat4(1.0f);
+        modelCloud = glm::translate(modelCloud, cloudPosition); // translate it down so it's at the center of the scene
+        unsigned int transformLocCloud = glGetUniformLocation(ModelShader.ID, "transModel");
+        glUniformMatrix4fv(transformLocCloud, 1, GL_FALSE, glm::value_ptr(trans5));
+        ModelShader.setMat4("model5", modelCloud);
+        CloudModel.Draw(ModelShader);
+
+        // PARTICLES
+        particleShader.Activate();
+        Particles->Update(deltaTime, 300, glm::vec3(0.3f, -0.7f, 0.0f), glm::vec3(X, Y, Z));
+        Particles->Draw(); 
+        glm::mat4 projectionPart = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 viewPart = camera.GetViewMatrix();
+        particleShader.setMat4("projectionPart", projectionPart);
+        particleShader.setMat4("viewPart", viewPart); 
+        glm::mat4 modelPart = glm::mat4(1.0f);
+        modelPart = glm::translate(modelPart, cloudPosition);
+        particleShader.setMat4("modelPart", modelPart);
         
         glfwSwapBuffers(window);
-
         glfwPollEvents();
         glfwSwapInterval(1);
     }

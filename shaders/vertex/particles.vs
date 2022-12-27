@@ -14,7 +14,7 @@ uniform mat4 modelPart;
 
 void main()
 {
-    float scale = 0.05f;
+    float scale = 0.01f;
     TexCoords = texCoords;
     ParticleColor = color;
     gl_Position = projectionPart * viewPart* modelPart * vec4((position * scale) + offset, 1.0);
