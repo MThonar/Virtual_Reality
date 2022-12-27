@@ -26,7 +26,7 @@ class ParticleGenerator
 {
 public:
     // constructor
-    ParticleGenerator(Shader shader, Texture texture, unsigned int amount);
+    ParticleGenerator(Shader shader, Texture texture, unsigned int amount, glm::vec3 velocity);
     // update all particles
     void Update(float dt,  unsigned int newParticles, glm::vec3 offset,  glm::vec3 position);
     // render all particles
@@ -35,6 +35,7 @@ private:
     // state
     std::vector<Particle> particles;
     unsigned int amount;
+    glm::vec3 velocity;
     // render state
     Shader particleShader;
     Texture particleTexture;

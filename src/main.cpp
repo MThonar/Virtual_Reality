@@ -41,7 +41,8 @@ bool firstMouse = true;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
-ParticleGenerator *Particles;
+ParticleGenerator *rain;
+ParticleGenerator *particleBall;
 
 
 unsigned int loadCubemap(vector<std::string> faces)
@@ -144,7 +145,8 @@ int main()
     Texture textureAwesomeFace("../image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     Texture textureParticles("../image/fireTexture.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 
-    Particles = new ParticleGenerator(particleShader, textureParticles, 200);
+    rain = new ParticleGenerator(particleShader, textureParticles, 200, glm::vec3(0.0f,0.4f,0.0f));
+    particleBall = new ParticleGenerator(lightShader, textureParticles, 200, glm::vec3(0.0f,0.0f,0.0f));
 
     glm::mat4 model = glm::mat4(1.0f);
 
@@ -219,7 +221,6 @@ int main()
 
         // CUBEMAP
         glDepthMask(GL_FALSE);
-
         CubemapShader.Activate();
         glm::mat4 projectionY = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         CubemapShader.setMat4("projectionY", projectionY);
@@ -227,14 +228,12 @@ int main()
         viewY = glm::mat4(glm::mat3(camera.GetViewMatrix()));
         CubemapShader.setMat4("viewY", viewY);
         cubeMapVAO.Bind();
-
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glDepthMask(GL_TRUE);
 
 
         // LIGHT BOX
-
         lightShader.Activate();
         lightShader.setVec3("viewPos", camera.Position); 
         lightShader.setVec3("lightPos",  lightPos);
@@ -242,15 +241,12 @@ int main()
         lightShader.setMat4("projectionX", projectionX);
         glm::mat4 viewX = camera.GetViewMatrix();
         lightShader.setMat4("viewX", viewX);
-
         int modelLoc = glGetUniformLocation(lightShader.ID, "model");
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         LightBoxVAO.Bind();
-
         glm::mat4 trans3 = glm::mat4(1.0f);
         trans3 = glm::translate(trans3, lightPos);
         trans3 = glm::rotate(trans3, 0.0f, glm::vec3(1.0f, 0.0f, 1.0f));
-
         lightShader.setVec3("lightColor",  100.0f, 100.0f, 100.0f);
         lightShader.setFloatReal("ambient",  100.0f);
 
@@ -326,7 +322,7 @@ int main()
         trans5 = glm::rotate(trans5, (float)glfwGetTime() * glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
         model5 = glm::rotate(model5, angle, glm::vec3(1.0f, 0.0f, 0.0f));
         model5 = glm::translate(model5, glm::vec3(X, Y, Z)); // translate it down so it's at the center of the scene
-        model5= glm::scale(model5, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        model5= glm::scale(model5, glm::vec3(0.5f, 0.5f, 0.5f));	// it's a bit too big for our scene, so scale it down
         unsigned int transformLocball = glGetUniformLocation(ModelShader.ID, "transModel");
         glUniformMatrix4fv(transformLocball, 1, GL_FALSE, glm::value_ptr(trans5));
         ModelShader.setMat4("model5", model5);
@@ -366,16 +362,28 @@ int main()
         ModelShader.setMat4("model5", modelCloud);
         CloudModel.Draw(ModelShader);
 
-        // PARTICLES
+        // RAIN
         particleShader.Activate();
-        Particles->Update(deltaTime, 300, glm::vec3(0.3f, -0.7f, 0.0f), glm::vec3(X, Y, Z));
-        Particles->Draw(); 
+        rain->Update(deltaTime, 300, glm::vec3(0.2f, -0.7f, 0.0f), cloudPosition);
+        rain->Draw(); 
+        glm::mat4 projectionRain = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 viewRain = camera.GetViewMatrix();
+        particleShader.setMat4("projectionPart", projectionRain);
+        particleShader.setMat4("viewPart", viewRain); 
+        glm::mat4 modelRain = glm::mat4(1.0f);
+        particleShader.setMat4("modelPart", modelRain);
+        
+
+
+        // PARTICLES BALL
+        particleShader.Activate();
+        particleBall->Update(deltaTime, 300, glm::vec3(-1.0f, 1.0f, 0.0f), glm::vec3(X, Y, Z));
+        particleBall->Draw(); 
         glm::mat4 projectionPart = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 viewPart = camera.GetViewMatrix();
         particleShader.setMat4("projectionPart", projectionPart);
         particleShader.setMat4("viewPart", viewPart); 
         glm::mat4 modelPart = glm::mat4(1.0f);
-        modelPart = glm::translate(modelPart, cloudPosition);
         particleShader.setMat4("modelPart", modelPart);
         
         glfwSwapBuffers(window);

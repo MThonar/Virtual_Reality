@@ -1,7 +1,7 @@
 #include "../include/header/ParticleGenerator.h"
 
-ParticleGenerator::ParticleGenerator(Shader shader, Texture texture, unsigned int amount)
-    : particleShader(shader), particleTexture(texture), amount(amount)
+ParticleGenerator::ParticleGenerator(Shader shader, Texture texture, unsigned int amount, glm::vec3 velocity)
+    : particleShader(shader), particleTexture(texture), amount(amount), velocity(velocity)
 {
      this->init();
 }
@@ -19,10 +19,9 @@ void ParticleGenerator::Update(float dt, unsigned int newParticles, glm::vec3 of
     {
         Particle &p = this->particles[i];
         p.Life -= dt;
-        // p.Life -= dt*((rand() % 100) / 100.0f); // reduce life randomly
         if (p.Life > 0.0f) // check if particle alive
         {	
-            p.Position -= p.Velocity * dt; 
+            p.Position -= velocity * dt; 
             // p.Color.a -= dt * 2.5f;
         }
     }
@@ -103,6 +102,5 @@ void ParticleGenerator::respawnParticle(Particle &particle, glm::vec3 offset,glm
     particle.Position = position + yes + offset;
     particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
     particle.Life = 2.0f + ((rand() % 100) / 100.0f);
-    particle.Velocity =  glm::vec3(0.0f,0.1f,0.0f);
 
-}
+} 
