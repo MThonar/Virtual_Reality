@@ -1,7 +1,7 @@
 #include "../include/glad/glad.h"
 #include "../include/GLFW/glfw3.h"
-
 #include "../include/stb/stb_image.h"
+
 #include "../include/header/Camera.h"
 #include "../include/header/model.h"
 #include "../include/header/EBO.h"
@@ -15,6 +15,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+
 #include <iostream>
 #include <cmath>
 #include <stdio.h>
@@ -41,7 +42,8 @@ bool firstMouse = true;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
-ParticleGenerator *Particles;
+ParticleGenerator *rain;
+ParticleGenerator *particleBall;
 
 
 unsigned int loadCubemap(vector<std::string> faces)
@@ -129,43 +131,41 @@ int main()
     glEnable(GL_DEPTH_TEST);  
 
 
-    Shader lightShader("../shaders/vertex/3D.vs", "../shaders/fragment/light.fs"); // you can name your shader files however you like
-    Shader ModelShader("../shaders/vertex/model_loading.vs", "../shaders/fragment/model_loading.fs"); // you can name your shader files however you like
-    Shader CubemapShader("../shaders/vertex/cubemap.vs", "../shaders/fragment/cubemap.fs"); // you can name your shader files however you like
+    Shader lightShader("../shaders/vertex/3D.vs", "../shaders/fragment/light.fs"); 
+    Shader ModelShader("../shaders/vertex/model_loading.vs", "../shaders/fragment/model_loading.fs"); 
+    Shader CubemapShader("../shaders/vertex/cubemap.vs", "../shaders/fragment/cubemap.fs"); 
+    Shader rainShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
     Shader particleShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
 
     Model BeachBallModel("../object/beachball/beachball.obj");
     Model BeachBallModel_2("../object/beachball/beachball.obj");
     stbi_set_flip_vertically_on_load(true);
     Model BackpackModel("../object/backpack/backpack.obj");
+    Model CloudModel("../object/CloudModel.obj");
 
     Texture textureContainer("../image/container.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     Texture textureAwesomeFace("../image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    Texture textureParticles("../image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 
-    Particles = new ParticleGenerator(particleShader, textureParticles, 200);
-
-    glm::mat4 model = glm::mat4(1.0f);
+    rain = new ParticleGenerator(rainShader, 200, glm::vec3(0.0f,0.4f,0.0f));
+    particleBall = new ParticleGenerator(particleShader, 200, glm::vec3(0.0f,0.0f,0.0f));
 
 
     VAO LightBoxVAO, cubeMapVAO, particlesVAO;
+    VBO LightBoxVBO(cubeVertices, sizeof(cubeVertices));
+    // Light Box
     LightBoxVAO.Bind();
-	VBO LightBoxVBO(cubeVertices, sizeof(cubeVertices));
     LightBoxVAO.LinkAttrib(LightBoxVBO, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0);
 	LightBoxVAO.LinkAttrib(LightBoxVBO, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float)));
     LightBoxVAO.LinkAttrib(LightBoxVBO, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float)));
     LightBoxVAO.LinkAttrib(LightBoxVBO, 3, 3, GL_FLOAT, 11 * sizeof(float), (void*)(8 * sizeof(float)));
     LightBoxVAO.Unbind();
 	LightBoxVBO.Unbind();
-
-
-
+    // Cube Map
+    VBO cubeMapVBO(cubeMapVertices, sizeof(cubeMapVertices));
     cubeMapVAO.Bind();
-	VBO cubeMapVBO(cubeMapVertices, sizeof(cubeMapVertices));
     cubeMapVAO.LinkAttrib(cubeMapVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
     cubeMapVAO.Unbind();
 	cubeMapVBO.Unbind();
-
     vector<std::string> faces
     {
         "../cubeMap/NiagaraFalls3/posx.jpg",
@@ -177,20 +177,20 @@ int main()
     };
     unsigned int cubemapTexture = loadCubemap(faces); 
 
-    lightShader.Activate();
 
-    textureContainer.texUnit(lightShader, "ourTexture_text", 0);
-    textureAwesomeFace.texUnit(lightShader, "texture_text2", 1);
-
-    ModelShader.Activate();
-    glUniform1i(glGetUniformLocation(ModelShader.ID, "texture_diffuse5"), 1); // set it manually
-    
-    particleShader.Activate();
-    glUniform1i(glGetUniformLocation(particleShader.ID, "texture_diffuse5"), 1); // set it manually
-
-
+    // Cube Map Shader
     CubemapShader.Activate();
-    CubemapShader.setInt("skyboxY", 0);
+    CubemapShader.setInt("skybox", 0);
+
+    // Light Shader
+    lightShader.Activate();
+    textureContainer.texUnit(lightShader, "texture1", 0);
+    textureAwesomeFace.texUnit(lightShader, "texture2", 1);
+
+    // Model Shader
+    ModelShader.Activate();
+    glUniform1i(glGetUniformLocation(ModelShader.ID, "texture_diffuse"), 1); // set it manually
+      
     float angle = glm::radians(50.0f);
     float X = 0.0f;
     float Y = 0.0f;
@@ -202,65 +202,57 @@ int main()
         lastFrame = currentFrame;
         
         processInput(window);
-        model = glm::rotate(model, 0.0f, glm::vec3(0.5f, 1.0f, 0.0f)); 
         
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         glActiveTexture(GL_TEXTURE0);
         textureContainer.Bind();
         glActiveTexture(GL_TEXTURE1);
-        textureAwesomeFace.Bind();
-
-        
-        glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+        textureAwesomeFace.Bind();      
 
 
         // CUBEMAP
         glDepthMask(GL_FALSE);
-
+        glm::mat4 projectionCubeMap = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 viewCubeMap = camera.GetViewMatrix();
+        viewCubeMap = glm::mat4(glm::mat3(camera.GetViewMatrix()));
         CubemapShader.Activate();
-        glm::mat4 projectionY = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        CubemapShader.setMat4("projectionY", projectionY);
-        glm::mat4 viewY = camera.GetViewMatrix();
-        viewY = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-        CubemapShader.setMat4("viewY", viewY);
+        CubemapShader.setMat4("projectionCubeMap", projectionCubeMap);
+        CubemapShader.setMat4("viewCubeMap", viewCubeMap);
         cubeMapVAO.Bind();
-
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glDepthMask(GL_TRUE);
 
 
         // LIGHT BOX
-
+        glm::mat4 model3D = glm::mat4(1.0f);
+        glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+        glm::mat4 projectionX = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view3D = camera.GetViewMatrix();
+        glm::mat4 trans3 = glm::mat4(1.0f);
+        model3D = glm::rotate(model3D, 0.0f, glm::vec3(0.5f, 1.0f, 0.0f)); 
+        trans3 = glm::translate(trans3, lightPos);
+        trans3 = glm::rotate(trans3, 0.0f, glm::vec3(1.0f, 0.0f, 1.0f));
         lightShader.Activate();
         lightShader.setVec3("viewPos", camera.Position); 
         lightShader.setVec3("lightPos",  lightPos);
-        glm::mat4 projectionX = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        lightShader.setMat4("projectionX", projectionX);
-        glm::mat4 viewX = camera.GetViewMatrix();
-        lightShader.setMat4("viewX", viewX);
-
-        int modelLoc = glGetUniformLocation(lightShader.ID, "model");
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        LightBoxVAO.Bind();
-
-        glm::mat4 trans3 = glm::mat4(1.0f);
-        trans3 = glm::translate(trans3, lightPos);
-        trans3 = glm::rotate(trans3, 0.0f, glm::vec3(1.0f, 0.0f, 1.0f));
-
+        lightShader.setMat4("projection3D", projectionX);
+        lightShader.setMat4("view3D", view3D);
         lightShader.setVec3("lightColor",  100.0f, 100.0f, 100.0f);
-        lightShader.setFloatReal("ambient",  100.0f);
-
-        unsigned int transformLoc3 = glGetUniformLocation(lightShader.ID, "transform_text");
+        lightShader.setFloatReal("ambientStrength",  100.0f);
+        lightShader.setFloatReal("specularStrength",  0.5f);
+        int modelLoc = glGetUniformLocation(lightShader.ID, "model3D");
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model3D));
+        LightBoxVAO.Bind(); 
+        unsigned int transformLoc3 = glGetUniformLocation(lightShader.ID, "transformText");
         glUniformMatrix4fv(transformLoc3, 1, GL_FALSE, glm::value_ptr(trans3));
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
         // SMALL BOXES
-
-        lightShader.setFloatReal("ambient",  0.1f); 
+        lightShader.setFloatReal("ambientStrength",  0.1f); 
+        lightShader.setFloatReal("specularStrength",  0.5f);
         for(unsigned int i = 0; i < 2; i++)
         {   
             glm::mat4 trans3 = glm::mat4(1.0f);
@@ -281,40 +273,32 @@ int main()
                 cubeModel = glm::rotate(cubeModel, 0.0f, glm::vec3(1.0f, 0.3f, 0.5f));
                 trans3 = glm::rotate(trans3, 0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
             }
-            lightShader.setMat4("model", cubeModel);
+            lightShader.setMat4("model3D", cubeModel);
 
-
-            unsigned int transformLoc3 = glGetUniformLocation(lightShader.ID, "transform_text");
+            unsigned int transformLoc3 = glGetUniformLocation(lightShader.ID, "transformText");
             glUniformMatrix4fv(transformLoc3, 1, GL_FALSE, glm::value_ptr(trans3));
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
            
         }
 
-
-        // PARTICLES
-        particleShader.Activate();
-        Particles->Update(deltaTime, 300, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-        Particles->Draw(); 
-        glm::mat4 projectionPart = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 viewPart = camera.GetViewMatrix();
-        particleShader.setMat4("projectionPart", projectionPart);
-        particleShader.setMat4("viewPart", viewPart); 
-        glm::mat4 modelPart = glm::mat4(1.0f);
-        modelPart = glm::translate(modelPart, glm::vec3(1.0f, 1.0f, 1.0f));
-        particleShader.setMat4("modelPart", modelPart);
-        
- 
-        // MODEL BACKPACK
         ModelShader.Activate();
+    glUniform1i(glGetUniformLocation(ModelShader.ID, "texture_normal"), 1); // set it manually
+ 
+        // MODELS      
         glm::mat4 projection5 = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view5 = camera.GetViewMatrix();
-        ModelShader.setMat4("projection5", projection5);
-        ModelShader.setMat4("view5", view5);
-
-        glm::mat4 model5 = glm::mat4(1.0f);
+        glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 bb_model = glm::mat4(1.0f);
         glm::mat4 backpack_model = glm::mat4(1.0f);
+        ModelShader.Activate();
+        ModelShader.setVec3("viewPos", camera.Position); 
+        ModelShader.setVec3("lightPos",  lightPos);
+        ModelShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
+        ModelShader.setFloatReal("ambient",  0.4f);
+        ModelShader.setFloatReal("specularStrength",  0.8f);
+        ModelShader.setMat4("projection5", projection5);
+        ModelShader.setMat4("view5", view5);
 
         float time = (float)glfwGetTime();
         if(glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS){
@@ -335,26 +319,26 @@ int main()
          if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
             X += 0.01f;
         }
+
         glm::mat4 trans5 = glm::mat4(1.0f);
         trans5 = glm::rotate(trans5, (float)glfwGetTime() * glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-        model5 = glm::rotate(model5, angle, glm::vec3(1.0f, 0.0f, 0.0f));
-        model5 = glm::translate(model5, glm::vec3(X, Y, Z)); // translate it down so it's at the center of the scene
-        model5= glm::scale(model5, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        model = glm::rotate(model, angle, glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::translate(model, glm::vec3(X, Y, Z)); // translate it down so it's at the center of the scene
+        model= glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));	// it's a bit too big for our scene, so scale it down
         unsigned int transformLocball = glGetUniformLocation(ModelShader.ID, "transModel");
         glUniformMatrix4fv(transformLocball, 1, GL_FALSE, glm::value_ptr(trans5));
-        ModelShader.setMat4("model5", model5);
+        ModelShader.setMat4("model", model);
         BeachBallModel.Draw(ModelShader);
 
         bb_model = glm::translate(bb_model, glm::vec3(-2.2f, 4.0f, 0.0f)); // translate it down so it's at the center of the scene
         bb_model= glm::scale(bb_model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        ModelShader.setMat4("model5", bb_model);
+        ModelShader.setMat4("model", bb_model);
         BeachBallModel_2.Draw(ModelShader);
 
         bool collision;
         glm::vec3 Pos5 = glm::vec3(1.0f, 1.0f, 1.0f);
-        glm::vec4 position_of_first_ball =  model5 * glm::vec4(Pos5, 1.0);
+        glm::vec4 position_of_first_ball =  model * glm::vec4(Pos5, 1.0);
         glm::vec4 position_of_second_ball = bb_model * glm::vec4(Pos5, 1.0);
-
         collision = CheckCollision(position_of_first_ball, position_of_second_ball, 1.85f, 1.85f);
         if (collision){
             backpack_model= glm::scale(backpack_model, glm::vec3(0.3f, 0.3f, 0.3f));	// it's a bit too big for our scene, so scale it down
@@ -362,14 +346,56 @@ int main()
         else{
             backpack_model= glm::scale(backpack_model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         }
-
         backpack_model = glm::translate(backpack_model, glm::vec3(-2.2f, 0.0f, 3.0f)); // translate it down so it's at the center of the scene
-        ModelShader.setMat4("model5", backpack_model);
+        ModelShader.setMat4("model", backpack_model);
         BackpackModel.Draw(ModelShader);
 
+        // MODEL CLOUD
+        glm::vec3 cloudPosition = glm::vec3(3.0f, 1.0f, 3.0f);
+        glm::mat4 modelCloud = glm::mat4(1.0f);
+        ModelShader.Activate();
+        ModelShader.setVec3("viewPos", camera.Position); 
+        ModelShader.setVec3("lightPos",  lightPos);
+        ModelShader.setMat4("projection", projection5);
+        ModelShader.setMat4("view", view5);
+        ModelShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
+        ModelShader.setFloatReal("ambient",  0.4f);
+        ModelShader.setFloatReal("specularStrength",  0.8f);
+        modelCloud = glm::translate(modelCloud, cloudPosition); // translate it down so it's at the center of the scene
+        unsigned int transformLocCloud = glGetUniformLocation(ModelShader.ID, "transModel");
+        glUniformMatrix4fv(transformLocCloud, 1, GL_FALSE, glm::value_ptr(trans5));
+        ModelShader.setMat4("model", modelCloud);
+        CloudModel.Draw(ModelShader);
+
+        // RAIN
+        rainShader.Activate();
+        rain->Update(deltaTime, 300, glm::vec3(0.2f, -0.7f, 0.0f), cloudPosition);
+        rain->Draw(); 
+        glm::mat4 projectionRain = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 viewRain = camera.GetViewMatrix();
+        glm::vec4 colRain(0.0f, 0.0f, 1.0f, 1.0f);
+        glm::mat4 modelRain = glm::mat4(1.0f);
+        rainShader.setMat4("projectionPart", projectionRain);
+        rainShader.setMat4("viewPart", viewRain); 
+        rainShader.setFloatReal("scalePart",  0.02f); 
+        rainShader.setVec4("colorPart", colRain);
+        rainShader.setMat4("modelPart", modelRain);
+        
+        // PARTICLES BALL
+        particleShader.Activate();
+        particleBall->Update(deltaTime, 300, glm::vec3(-1.0f, 1.0f, 0.0f), glm::vec3(X, Y, Z));
+        particleBall->Draw(); 
+        glm::mat4 projectionPart = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 viewPart = camera.GetViewMatrix();
+        glm::vec4 colPart(1.0f, 1.0f, 1.0f, 1.0f);
+        glm::mat4 modelPart = glm::mat4(1.0f);
+        particleShader.setMat4("projectionPart", projectionPart);
+        particleShader.setMat4("viewPart", viewPart); 
+        particleShader.setFloatReal("scalePart",  0.01f);       
+        particleShader.setVec4("colorPart", colPart);       
+        particleShader.setMat4("modelPart", modelPart);
         
         glfwSwapBuffers(window);
-
         glfwPollEvents();
         glfwSwapInterval(1);
     }

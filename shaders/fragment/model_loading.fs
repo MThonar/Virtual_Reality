@@ -1,11 +1,37 @@
 #version 330 core
-out vec4 FragColor5;
 
-in vec2 TexCoords5;
+in vec2 TexCoords;
+in vec3 Normal;  
+in vec3 FragPosText;
 
-uniform sampler2D texture_normal;
+out vec4 FragColor;
+
+uniform sampler2D textureNormal;
+
+uniform float ambient;
+uniform float specularStrength;
+uniform vec3 lightColor;
+uniform vec3 lightPos;  
+uniform vec3 viewPos;
 
 void main()
-{    
-    FragColor5 = texture(texture_normal, TexCoords5);
+{   
+    //Diffuse Light
+    vec3 norm = normalize(Normal);
+    vec3 lightDir = normalize(lightPos - FragPosText);  
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = diff * lightColor;
+
+    //Ambient Light
+    vec3 ambientScene = ambient * lightColor;
+
+    //Specular Light
+    vec3 viewDir = normalize(viewPos - FragPosText);
+    vec3 reflectDir = reflect(-lightDir, norm);  
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    vec3 specular = specularStrength * spec * lightColor; 
+
+    //Global
+    vec3 colorScene = ambientScene + diffuse + specular;
+    FragColor = vec4(vec4(colorScene,1.0) *(texture(textureNormal, TexCoords)));
 }

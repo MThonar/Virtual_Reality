@@ -1,7 +1,7 @@
 #include "../include/header/ParticleGenerator.h"
 
-ParticleGenerator::ParticleGenerator(Shader shader, Texture texture, unsigned int amount)
-    : particleShader(shader), particleTexture(texture), amount(amount)
+ParticleGenerator::ParticleGenerator(Shader shader, unsigned int amount, glm::vec3 velocity)
+    : particleShader(shader), amount(amount), velocity(velocity)
 {
      this->init();
 }
@@ -18,11 +18,10 @@ void ParticleGenerator::Update(float dt, unsigned int newParticles, glm::vec3 of
     for (unsigned int i = 0; i < this->amount; ++i)
     {
         Particle &p = this->particles[i];
-        p.Life -= dt; // reduce life
+        p.Life -= dt;
         if (p.Life > 0.0f) // check if particle alive
         {	
-            p.Position -= p.Velocity * dt; 
-            p.Color.a -= dt * 2.5f;
+            p.Position -= velocity * dt; 
         }
     }
 }
@@ -30,14 +29,11 @@ void ParticleGenerator::Update(float dt, unsigned int newParticles, glm::vec3 of
 void ParticleGenerator::Draw()
 {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    // this->particleShader.Activate();
     for (Particle particle : this->particles)
     {
         if (particle.Life > 0.0f)
         {
-            this->particleShader.setVec3("offset", particle.Position);
-            this->particleShader.setVec4("color", particle.Color);
-            this->particleTexture.Bind();
+            this->particleShader.setVec3("offsetPart", particle.Position);
             glBindVertexArray(this->particleVAO);
             glDrawArrays(GL_TRIANGLES, 0, 6);
             glBindVertexArray(0);
@@ -101,7 +97,6 @@ void ParticleGenerator::respawnParticle(Particle &particle, glm::vec3 offset,glm
     float rColor = 0.5f + ((rand() % 100) / 100.0f);
     particle.Position = position + yes + offset;
     particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
-    particle.Life = 0.5f;
-    particle.Velocity =  glm::vec3(0.0f,0.0f,0.0f);
+    particle.Life = 2.0f + ((rand() % 100) / 100.0f);
 
-}
+} 
