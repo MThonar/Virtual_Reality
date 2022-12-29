@@ -129,6 +129,7 @@ int main()
         return -1;
     }
     glEnable(GL_DEPTH_TEST);  
+    
 
 
     Shader lightShader("../shaders/vertex/3D.vs", "../shaders/fragment/light.fs"); 
@@ -136,6 +137,7 @@ int main()
     Shader CubemapShader("../shaders/vertex/cubemap.vs", "../shaders/fragment/cubemap.fs"); 
     Shader rainShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
     Shader particleShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
+    Shader reflexionShader("../shaders/vertex/reflexion.vs", "../shaders/fragment/reflexion.fs");
 
     Model BeachBallModel("../object/beachball/beachball.obj");
     Model BeachBallModel_2("../object/beachball/beachball.obj");
@@ -213,11 +215,29 @@ int main()
         textureAwesomeFace.Bind();  
         // glActiveTexture(GL_TEXTURE2);
         // textureFire.Bind();
-          
+        // Constant 
+        glm::mat4 projectionX = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view3D = camera.GetViewMatrix();
+        glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
+         // // REFLEXION BOX    
+        reflexionShader.Activate();
+        glm::mat4 modelRefl = glm::mat4(1.0f);
+       
+        reflexionShader.setMat4("projectionRefl", projectionX);
+        reflexionShader.setMat4("viewRefl", view3D);
+        reflexionShader.setVec3("cameraPos", camera.Position); 
+        reflexionShader.setMat4("modelRefl", modelRefl);
+        LightBoxVAO.Bind(); 
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture); 
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
 
-        // CUBEMAP
+        // CUBEMAP 
+        glDepthFunc(GL_LEQUAL);
         glDepthMask(GL_FALSE);
+       
         glm::mat4 projectionCubeMap = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 viewCubeMap = camera.GetViewMatrix();
         viewCubeMap = glm::mat4(glm::mat3(camera.GetViewMatrix()));
@@ -225,16 +245,18 @@ int main()
         CubemapShader.setMat4("projectionCubeMap", projectionCubeMap);
         CubemapShader.setMat4("viewCubeMap", viewCubeMap);
         cubeMapVAO.Bind();
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
         glDepthMask(GL_TRUE);
+        glDepthFunc(GL_LESS);
+
+       
 
 
         // LIGHT BOX
         glm::mat4 model3D = glm::mat4(1.0f);
-        glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-        glm::mat4 projectionX = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view3D = camera.GetViewMatrix();
         glm::mat4 trans3 = glm::mat4(1.0f);
         model3D = glm::rotate(model3D, 0.0f, glm::vec3(0.5f, 1.0f, 0.0f)); 
         trans3 = glm::translate(trans3, lightPos);
@@ -379,7 +401,7 @@ int main()
         trans5 = glm::rotate(trans5, (float)glfwGetTime() * glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
         model = glm::rotate(model, angle, glm::vec3(1.0f, 0.0f, 0.0f));
         model = glm::translate(model, glm::vec3(X, Y, Z)); // translate it down so it's at the center of the scene
-        model= glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));	// it's a bit too big for our scene, so scale it down
+        model= glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         unsigned int transformLocball = glGetUniformLocation(ModelShader.ID, "transModel");
         glUniformMatrix4fv(transformLocball, 1, GL_FALSE, glm::value_ptr(trans5));
         ModelShader.setMat4("model", model);
