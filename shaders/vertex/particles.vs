@@ -1,8 +1,8 @@
 #version 330 core
 layout (location = 0) in vec3 positionPart;
-layout (location = 1) in vec3 texCoordPart;
+layout (location = 2) in vec2 texCoordPart;
 
-out vec3 TexCoordsPart;
+out vec2 TexCoordPart;
 out vec4 ParticleColor;
 
 uniform float scalePart;
@@ -14,7 +14,7 @@ uniform mat4 modelPart;
 
 void main()
 {
-    TexCoordsPart = texCoordPart;
+    TexCoordPart = vec2(texCoordPart.x, texCoordPart.y);;
     ParticleColor = colorPart;
     gl_Position = projectionPart * viewPart* modelPart * vec4((positionPart * scalePart) + offsetPart, 1.0);
 }
