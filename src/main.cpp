@@ -187,10 +187,7 @@ int main()
     lightShader.Activate();
     textureContainer.texUnit(lightShader, "texture1", 0);
     textureAwesomeFace.texUnit(lightShader, "texture2", 1);
-
-    // Model Shader
-    // ModelShader.Activate();
-    // glUniform1i(glGetUniformLocation(ModelShader.ID, "texture_diffuse"), 1); // set it manually
+    
     // Particle Shader
     particleShader.Activate();
     textureFire.texUnit(particleShader, "texturePart1", 0);
