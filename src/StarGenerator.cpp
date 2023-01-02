@@ -19,8 +19,9 @@ void StarGenerator::draw(Shader explosionShader, glm::vec3 camPosition ,glm::vec
         explosionShader.setFloatReal("ambient",  0.4f);
         explosionShader.setFloatReal("specularStrength",  0.8f);
         explosionShader.setFloatReal("timeExpl", timeExpl);
+        
+        StarModelMat = glm::translate(StarModelMat, StarPosition); 
         StarModelMat = glm::scale(StarModelMat, glm::vec3(0.005f, 0.005f, 0.005f));
-        // StarModelMat = glm::translate(StarModelMat, StarPosition); 
         unsigned int transformLocStar = glGetUniformLocation(explosionShader.ID, "transModelExpl");
         glUniformMatrix4fv(transformLocStar, 1, GL_FALSE, glm::value_ptr(trans5));
         explosionShader.setMat4("modelExpl", StarModelMat);
