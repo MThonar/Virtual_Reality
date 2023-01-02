@@ -14,5 +14,5 @@ void main()
 {
     Normal = mat3(transpose(inverse(modelRefl))) * aNormal;
     Position = vec3(modelRefl * vec4(aPos, 1.0));
-    gl_Position = projection * view *vec4(Position, 1.0);
+    gl_Position = projectionRefl * viewRefl *vec4(Position, 1.0);
 }  

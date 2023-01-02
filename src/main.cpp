@@ -10,6 +10,7 @@
 #include "../include/header/Shader.h"
 #include "../include/header/texture.h"
 #include "../include/header/ParticleGenerator.h"
+#include "../include/header/StarGenerator.h"
 #include "../include/header/constants.h"
 
 #include "glm/glm.hpp"
@@ -44,6 +45,8 @@ float lastFrame = 0.0f;
 
 ParticleGenerator *rain;
 ParticleGenerator *particleBall;
+StarGenerator *star_one;
+StarGenerator *star_two;
 
 
 unsigned int loadCubemap(vector<std::string> faces)
@@ -138,6 +141,7 @@ int main()
     Shader rainShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
     Shader particleShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
     Shader reflexionShader("../shaders/vertex/reflexion.vs", "../shaders/fragment/reflexion.fs");
+    Shader explosionShader("../shaders/vertex/explode.vs", "../shaders/fragment/explode.fs",  "../shaders/geometry/explode.gs");
 
     Model BeachBallModel("../object/beachball/beachball.obj");
     Model BeachBallModel_2("../object/beachball/beachball.obj");
@@ -154,6 +158,8 @@ int main()
     rain = new ParticleGenerator(rainShader, 200, glm::vec3(0.0f,0.4f,0.0f));
     particleBall = new ParticleGenerator(particleShader, 200, glm::vec3(0.0f,0.0f,0.0f));
 
+    star_one = new StarGenerator();
+    star_two = new StarGenerator();
 
     VAO LightBoxVAO, cubeMapVAO, particlesVAO;
     VBO LightBoxVBO(cubeVertices, sizeof(cubeVertices));
@@ -201,6 +207,7 @@ int main()
     float X = 0.0f;
     float Y = 0.0f;
     float Z = 0.0f;
+    float timeExpl = 0.0f;
     while (!glfwWindowShouldClose(window))
     {
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -222,19 +229,19 @@ int main()
         glm::mat4 view3D = camera.GetViewMatrix();
         glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
-        // REFLEXION BOX    
-        reflexionShader.Activate();
-        glm::mat4 modelRefl = glm::mat4(1.0f);
+        // // REFLEXION BOX    
+        // reflexionShader.Activate();
+        // glm::mat4 modelRefl = glm::mat4(1.0f);
        
-        reflexionShader.setMat4("projectionRefl", projectionX);
-        reflexionShader.setMat4("viewRefl", view3D);
-        reflexionShader.setVec3("cameraPos", camera.Position); 
-        reflexionShader.setMat4("modelRefl", modelRefl);
-        LightBoxVAO.Bind(); 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture); 
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
+        // reflexionShader.setMat4("projectionRefl", projectionX);
+        // reflexionShader.setMat4("viewRefl", view3D);
+        // reflexionShader.setVec3("cameraPos", camera.Position); 
+        // reflexionShader.setMat4("modelRefl", modelRefl);
+        // LightBoxVAO.Bind(); 
+        // glActiveTexture(GL_TEXTURE0);
+        // glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture); 
+        // glDrawArrays(GL_TRIANGLES, 0, 36);
+        // glBindVertexArray(0);
 
         // CUBEMAP 
         glDepthFunc(GL_LEQUAL);
@@ -348,8 +355,8 @@ int main()
         glm::mat4 backpack_model = glm::mat4(1.0f);
         glm::mat4 trans5 = glm::mat4(1.0f);
         ModelShader.Activate();
+
         // MODEL CLOUD
-        
         glm::mat4 modelCloud = glm::mat4(1.0f);
         ModelShader.setVec3("viewPos", camera.Position); 
         ModelShader.setVec3("lightPos",  lightPos);
@@ -364,22 +371,7 @@ int main()
         ModelShader.setMat4("model", modelCloud);
         CloudModel.Draw(ModelShader);
 
-        glm::vec3 StarPosition = glm::vec3(-3.0f, 1.0f, 3.0f);
-        glm::mat4 StarModelMat = glm::mat4(1.0f);
-        ModelShader.setVec3("viewPos", camera.Position); 
-        ModelShader.setVec3("lightPos",  lightPos);
-        ModelShader.setMat4("projection", projection5);
-        ModelShader.setMat4("view", view5);
-        ModelShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
-        ModelShader.setFloatReal("ambient",  0.4f);
-        ModelShader.setFloatReal("specularStrength",  0.8f);
-        StarModelMat = glm::scale(StarModelMat, glm::vec3(0.05f, 0.05f, 0.05f));
-        StarModelMat = glm::translate(StarModelMat, StarPosition); // translate it down so it's at the center of the scene
-        unsigned int transformLocStar = glGetUniformLocation(ModelShader.ID, "transModel");
-        glUniformMatrix4fv(transformLocStar, 1, GL_FALSE, glm::value_ptr(trans5));
-        ModelShader.setMat4("model", StarModelMat);
-        StarModel.Draw(ModelShader);
-
+       
 
         // BackPack MODEL
         ModelShader.setVec3("viewPos", camera.Position); 
@@ -388,7 +380,7 @@ int main()
         ModelShader.setFloatReal("ambient",  0.4f);
         ModelShader.setFloatReal("specularStrength",  0.8f);
         ModelShader.setMat4("projection5", projection5);
-        ModelShader.setMat4("view5", view5);
+        ModelShader.setMat4("view", view5);
 
         float time = (float)glfwGetTime();
         if(glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS){
@@ -440,9 +432,42 @@ int main()
         ModelShader.setMat4("model", backpack_model);
         BackpackModel.Draw(ModelShader);
 
-        
-        
-        
+        if (collision){
+            if (timeExpl > 3.0f){
+                timeExpl = 3.0f;
+            }
+            else{
+                timeExpl = timeExpl + 0.01f;
+                StarModel.Draw(explosionShader);
+            }
+        }
+        glm::vec3 StarPosition_one = glm::vec3(-1.0f, 1.0f, 3.0f);
+        star_one->draw(explosionShader, camera.Position , StarPosition_one, timeExpl, lightPos, projection5, view5);
+        StarModel.Draw(explosionShader);
+
+        glm::vec3 StarPosition_two = glm::vec3(10.0f, 3.0f, -2.0f);
+        star_two->draw(explosionShader, camera.Position , StarPosition_two, timeExpl*0, lightPos, projection5, view5);
+        StarModel.Draw(explosionShader);
+
+        // explosionShader.Activate();
+        // glm::vec3 StarPosition = glm::vec3(-1.0f, 1.0f, 3.0f);
+        // glm::mat4 StarModelMat = glm::mat4(1.0f);
+        // explosionShader.setVec3("viewPos", camera.Position); 
+        // explosionShader.setVec3("light",  lightPos);
+        // explosionShader.setMat4("projectionExpl", projection5);
+        // explosionShader.setMat4("viewExpl", view5);
+        // explosionShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
+        // explosionShader.setFloatReal("ambient",  0.4f);
+        // explosionShader.setFloatReal("specularStrength",  0.8f);
+        // explosionShader.setFloatReal("timeExpl", timeExpl);
+        // StarModelMat = glm::scale(StarModelMat, glm::vec3(0.005f, 0.005f, 0.005f));
+        // StarModelMat = glm::translate(StarModelMat, StarPosition); // translate it down so it's at the center of the scene
+        // unsigned int transformLocStar = glGetUniformLocation(explosionShader.ID, "transModelExpl");
+        // glUniformMatrix4fv(transformLocStar, 1, GL_FALSE, glm::value_ptr(trans5));
+        // explosionShader.setMat4("modelExpl", StarModelMat);
+        // StarModel.Draw(explosionShader);
+
+
         glfwSwapBuffers(window);
         glfwPollEvents();
         glfwSwapInterval(1);
