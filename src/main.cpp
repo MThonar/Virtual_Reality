@@ -144,6 +144,8 @@ int main()
     stbi_set_flip_vertically_on_load(true);
     Model BackpackModel("../object/backpack/backpack.obj");
     Model CloudModel("../object/CloudModel.obj");
+    Model StarModel("../object/star/star.obj");
+    
 
     Texture textureContainer("../image/container.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     Texture textureAwesomeFace("../image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
@@ -213,14 +215,14 @@ int main()
         textureContainer.Bind();
         glActiveTexture(GL_TEXTURE1);
         textureAwesomeFace.Bind();  
-        // glActiveTexture(GL_TEXTURE2);
-        // textureFire.Bind();
+
+
         // Constant 
         glm::mat4 projectionX = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view3D = camera.GetViewMatrix();
         glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
-         // // REFLEXION BOX    
+        // REFLEXION BOX    
         reflexionShader.Activate();
         glm::mat4 modelRefl = glm::mat4(1.0f);
        
@@ -237,7 +239,6 @@ int main()
         // CUBEMAP 
         glDepthFunc(GL_LEQUAL);
         glDepthMask(GL_FALSE);
-       
         glm::mat4 projectionCubeMap = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 viewCubeMap = camera.GetViewMatrix();
         viewCubeMap = glm::mat4(glm::mat3(camera.GetViewMatrix()));
@@ -251,9 +252,6 @@ int main()
         glBindVertexArray(0);
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS);
-
-       
-
 
         // LIGHT BOX
         glm::mat4 model3D = glm::mat4(1.0f);
@@ -275,7 +273,6 @@ int main()
         unsigned int transformLoc3 = glGetUniformLocation(lightShader.ID, "transformText");
         glUniformMatrix4fv(transformLoc3, 1, GL_FALSE, glm::value_ptr(trans3));
         glDrawArrays(GL_TRIANGLES, 0, 36);
-
 
         // SMALL BOXES
         lightShader.setFloatReal("ambientStrength",  0.1f); 
@@ -352,7 +349,7 @@ int main()
         glm::mat4 trans5 = glm::mat4(1.0f);
         ModelShader.Activate();
         // MODEL CLOUD
-        // glm::vec3 cloudPosition = glm::vec3(3.0f, 1.0f, 3.0f);
+        
         glm::mat4 modelCloud = glm::mat4(1.0f);
         ModelShader.setVec3("viewPos", camera.Position); 
         ModelShader.setVec3("lightPos",  lightPos);
@@ -366,6 +363,22 @@ int main()
         glUniformMatrix4fv(transformLocCloud, 1, GL_FALSE, glm::value_ptr(trans5));
         ModelShader.setMat4("model", modelCloud);
         CloudModel.Draw(ModelShader);
+
+        glm::vec3 StarPosition = glm::vec3(-3.0f, 1.0f, 3.0f);
+        glm::mat4 StarModelMat = glm::mat4(1.0f);
+        ModelShader.setVec3("viewPos", camera.Position); 
+        ModelShader.setVec3("lightPos",  lightPos);
+        ModelShader.setMat4("projection", projection5);
+        ModelShader.setMat4("view", view5);
+        ModelShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
+        ModelShader.setFloatReal("ambient",  0.4f);
+        ModelShader.setFloatReal("specularStrength",  0.8f);
+        StarModelMat = glm::scale(StarModelMat, glm::vec3(0.05f, 0.05f, 0.05f));
+        StarModelMat = glm::translate(StarModelMat, StarPosition); // translate it down so it's at the center of the scene
+        unsigned int transformLocStar = glGetUniformLocation(ModelShader.ID, "transModel");
+        glUniformMatrix4fv(transformLocStar, 1, GL_FALSE, glm::value_ptr(trans5));
+        ModelShader.setMat4("model", StarModelMat);
+        StarModel.Draw(ModelShader);
 
 
         // BackPack MODEL
