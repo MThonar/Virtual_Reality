@@ -115,7 +115,7 @@ int main()
 
     // load textures
     // -------------
-    unsigned int woodTexture = loadTexture(FileSystem::getPath("resources/textures/wood.png").c_str());
+    unsigned int woodTexture = loadTexture("../resources/textures/container.jpg");
 
     // configure depth map FBO
     // -----------------------
