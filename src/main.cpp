@@ -340,8 +340,6 @@ int main()
         ModelShader.setMat4("projection", projection5);
         ModelShader.setMat4("view", view5);
         ModelShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
-        ModelShader.setFloatReal("ambient",  0.4f);
-        ModelShader.setFloatReal("specularStrength",  0.8f);
         modelCloud = glm::translate(modelCloud, cloudPosition); // translate it down so it's at the center of the scene
         unsigned int transformLocCloud = glGetUniformLocation(ModelShader.ID, "transModel");
         glUniformMatrix4fv(transformLocCloud, 1, GL_FALSE, glm::value_ptr(trans5));
@@ -353,8 +351,6 @@ int main()
         ModelShader.setVec3("viewPos", camera.Position); 
         ModelShader.setVec3("lightPos",  lightPos);
         ModelShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
-        ModelShader.setFloatReal("ambient",  0.4f);
-        ModelShader.setFloatReal("specularStrength",  0.8f);
         ModelShader.setMat4("projection5", projection5);
         ModelShader.setMat4("view5", view5);
 
@@ -426,7 +422,8 @@ int main()
 
 void processInput(GLFWwindow *window)
 {
-    
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -435,7 +432,6 @@ void processInput(GLFWwindow *window)
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
-    glfwSetWindowShouldClose(window, false);
 }
 
 
