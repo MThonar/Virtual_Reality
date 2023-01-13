@@ -17,7 +17,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 unsigned int loadTexture(const char *path);
-void renderScene(const Shader &shader);
+void renderScene(Shader &shader, Model &backpackModel);
 void renderCube();
 void renderQuad();
 
@@ -46,10 +46,6 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
 
     // glfw window creation
     // --------------------
@@ -85,6 +81,9 @@ int main()
     Shader shader("../shaders/vertex/shadow_mapping.vs", "../shaders/fragment/shadow_mapping.fs");
     Shader simpleDepthShader("../shaders/vertex/shadow_mapping_depth.vs", "../shaders/fragment/shadow_mapping_depth.fs");
     Shader debugDepthQuad("../shaders/vertex/debug_quad_depth.vs", "../shaders/fragment/debug_quad_depth.fs");
+    Shader ModelShader("../shaders/vertex/model_loading.vs", "../shaders/fragment/model_loading.fs"); 
+
+    Model backpackModel("../objects/backpack/backpack.obj");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -177,6 +176,17 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // Models
+        glm::mat4 projection5 = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view5 = camera.GetViewMatrix();
+        ModelShader.use();
+        // backpack
+        ModelShader.setVec3("viewPos", camera.Position); 
+        ModelShader.setVec3("lightPos",  lightPos);
+        ModelShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
+        ModelShader.setMat4("projection5", projection5);
+        ModelShader.setMat4("view5", view5);
+
         // 1. render depth of scene to texture (from light's perspective)
         // --------------------------------------------------------------
         glm::mat4 lightProjection, lightView;
@@ -192,10 +202,10 @@ int main()
 
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-            glClear(GL_DEPTH_BUFFER_BIT);
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, woodTexture);
-            renderScene(simpleDepthShader);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, woodTexture);
+        renderScene(simpleDepthShader, backpackModel);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         // reset viewport
@@ -217,7 +227,7 @@ int main()
         glBindTexture(GL_TEXTURE_2D, woodTexture);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, depthMap);
-        renderScene(shader);
+        renderScene(shader, backpackModel);
 
         // render Depth map to quad for visual debugging
         // ---------------------------------------------
@@ -245,30 +255,36 @@ int main()
 
 // renders the 3D scene
 // --------------------
-void renderScene(const Shader &shader)
+void renderScene(Shader &shader, Model &backpackModel)
 {
     // floor
     glm::mat4 model = glm::mat4(1.0f);
     shader.setMat4("model", model);
     glBindVertexArray(planeVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
-    // cubes
+    // // cubes
+    // model = glm::mat4(1.0f);
+    // model = glm::translate(model, glm::vec3(0.0f, 1.5f, 0.0));
+    // model = glm::scale(model, glm::vec3(0.5f));
+    // shader.setMat4("model", model);
+    // renderCube();
+    // model = glm::mat4(1.0f);
+    // model = glm::translate(model, glm::vec3(2.0f, 0.0f, 1.0));
+    // model = glm::scale(model, glm::vec3(0.5f));
+    // shader.setMat4("model", model);
+    // renderCube();
+    // model = glm::mat4(1.0f);
+    // model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 2.0));
+    // model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+    // model = glm::scale(model, glm::vec3(0.25));
+    // shader.setMat4("model", model);
+    // renderCube();
+    // backpack
     model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(0.0f, 1.5f, 0.0));
-    model = glm::scale(model, glm::vec3(0.5f));
-    shader.setMat4("model", model);
-    renderCube();
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(2.0f, 0.0f, 1.0));
-    model = glm::scale(model, glm::vec3(0.5f));
-    shader.setMat4("model", model);
-    renderCube();
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 2.0));
-    model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
     model = glm::scale(model, glm::vec3(0.25));
+    model = glm::translate(model, glm::vec3(5.0f, 5.0f, 0.0f));
     shader.setMat4("model", model);
-    renderCube();
+    backpackModel.Draw(shader);
 }
 
 
