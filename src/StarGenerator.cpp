@@ -26,7 +26,13 @@ void StarGenerator::draw(Shader explosionShader, glm::vec3 camPosition ,glm::vec
 
         StarModelMat = glm::translate(StarModelMat, StarPosition); 
         s.StarModelMatVec = StarModelMat;
-        StarModelMat = glm::scale(StarModelMat, glm::vec3(0.005f, 0.005f, 0.005f));
+        if (s.exploded){
+            StarModelMat = glm::scale(StarModelMat, glm::vec3(0.000005f, 0.000005f, 0.000005f));
+        }
+        else{
+            StarModelMat = glm::scale(StarModelMat, glm::vec3(0.005f, 0.005f, 0.005f));
+        }
+        
 
         
         unsigned int transformLocStar = glGetUniformLocation(explosionShader.ID, "transModelExpl");
@@ -48,16 +54,17 @@ void StarGenerator::update(Shader explosionShader, glm::vec4 Position_1, glm::ve
         bool collision = CheckCollision_star(Position_1, Position_2, 1.0f, 1.0f);
         float timeExplInc = s.timeExpl;
         if (collision){
-            if (timeExplInc > 3.0f){
+            if (timeExplInc > 6.0f){
                 // s.timeExpl = 0.0f;
                 s.StarModelMatVec = glm::scale(s.StarModelMatVec, glm::vec3(0.000005f, 0.000005f, 0.000005f));
-                explosionShader.setMat4("modelExpl", s.StarModelMatVec);
+                s.exploded = true;
             }
             else{
-                s.timeExpl = timeExplInc + 0.01f;
+                s.timeExpl = timeExplInc + 0.1f;
             }
         }
         explosionShader.setFloatReal("timeExpl", s.timeExpl);
+        
     }
 
 

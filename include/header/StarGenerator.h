@@ -19,8 +19,9 @@ struct Star {
     glm::mat4 StarModelMatVec;
     glm::mat4 projection5Vec;
     glm::mat4 view5Vec;
+    bool exploded;
     float timeExpl ;
-    Star() : StarModelMatVec(1.0f), projection5Vec(1.0),view5Vec(1.0) , timeExpl(0.0f) { }
+    Star() : StarModelMatVec(1.0f), projection5Vec(1.0),view5Vec(1.0) , timeExpl(0.0f), exploded(0.0f) { }
 };
 
 
