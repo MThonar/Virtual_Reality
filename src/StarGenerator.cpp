@@ -1,14 +1,14 @@
 #include "../include/header/StarGenerator.h"
 
-StarGenerator::StarGenerator()
+StarGenerator::StarGenerator(float timeExpl)
 {
     this->init();
 }
 
-void StarGenerator::draw(Shader explosionShader, glm::vec3 camPosition ,glm::vec3 StarPosition, float timeExpl, glm::vec3 lightPos, glm::mat4 projection5, glm::mat4 view5)
+void StarGenerator::draw(Shader explosionShader, glm::vec3 camPosition ,glm::vec3 StarPosition, glm::vec3 lightPos, glm::mat4 projection5, glm::mat4 view5)
+    
     {   
         explosionShader.Activate();
-        glm::mat4 StarModelMat = glm::mat4(1.0f);
         glm::mat4 trans5 = glm::mat4(1.0f);
         trans5 = glm::rotate(trans5, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         explosionShader.setVec3("viewPos", camPosition); 
@@ -18,10 +18,17 @@ void StarGenerator::draw(Shader explosionShader, glm::vec3 camPosition ,glm::vec
         explosionShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
         explosionShader.setFloatReal("ambient",  0.4f);
         explosionShader.setFloatReal("specularStrength",  0.8f);
-        explosionShader.setFloatReal("timeExpl", timeExpl);
-        
+        Star &s = this->stars[0];
+        glm::mat4 StarModelMat = glm::mat4(1.0f);
+        s.StarModelMatVec = StarModelMat ;
+        s.projection5Vec = projection5 ;
+        s.view5Vec = view5 ;
+
         StarModelMat = glm::translate(StarModelMat, StarPosition); 
+        s.StarModelMatVec = StarModelMat;
         StarModelMat = glm::scale(StarModelMat, glm::vec3(0.005f, 0.005f, 0.005f));
+
+        
         unsigned int transformLocStar = glGetUniformLocation(explosionShader.ID, "transModelExpl");
         glUniformMatrix4fv(transformLocStar, 1, GL_FALSE, glm::value_ptr(trans5));
         explosionShader.setMat4("modelExpl", StarModelMat);
@@ -29,5 +36,38 @@ void StarGenerator::draw(Shader explosionShader, glm::vec3 camPosition ,glm::vec
     }
 
 void StarGenerator::init(){
-     glm::mat4 StarModelMat = glm::mat4(1.0f);
+    this->stars.push_back(Star());
 }
+
+void StarGenerator::update(Shader explosionShader, glm::vec4 Position_1, glm::vec4 Position_3, float radius_1, float radius_2)
+    {   
+        glm::vec3 PosStar = glm::vec3(1.0f, 1.0f, 1.0f);
+        Star &s = this->stars[0];
+        glm::vec4 Position_2 =  s.StarModelMatVec * glm::vec4(PosStar, 1.0);
+        Position_2 = Position_2 + glm::vec4(3.0f, 0.0f, 0.0f, 1.0f);
+        bool collision = CheckCollision_star(Position_1, Position_2, 1.0f, 1.0f);
+        float timeExplInc = s.timeExpl;
+        if (collision){
+            if (timeExplInc > 3.0f){
+                // s.timeExpl = 0.0f;
+                s.StarModelMatVec = glm::scale(s.StarModelMatVec, glm::vec3(0.000005f, 0.000005f, 0.000005f));
+                explosionShader.setMat4("modelExpl", s.StarModelMatVec);
+            }
+            else{
+                s.timeExpl = timeExplInc + 0.01f;
+            }
+        }
+        explosionShader.setFloatReal("timeExpl", s.timeExpl);
+    }
+
+
+bool StarGenerator::CheckCollision_star(glm::vec4 Position_1, glm::vec4 Position_2, float radius_1, float radius_2) // AABB - AABB collision
+{
+    bool collisionX = Position_1.x + radius_1 >= Position_2.x &&
+        Position_2.x + radius_2 >= Position_1.x;
+    bool collisionY = Position_1.y + radius_1 >= Position_2.y &&
+        Position_2.y + radius_2 >= Position_1.y;
+    bool collisionZ = Position_1.z + radius_1 >= Position_2.z &&
+        Position_2.z + radius_2 >= Position_1.z;
+    return collisionX && collisionY && collisionZ;
+} 

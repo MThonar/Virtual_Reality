@@ -158,8 +158,8 @@ int main()
     rain = new ParticleGenerator(rainShader, 200, glm::vec3(0.0f,0.4f,0.0f));
     particleBall = new ParticleGenerator(particleShader, 200, glm::vec3(0.0f,0.0f,0.0f));
 
-    star_one = new StarGenerator();
-    star_two = new StarGenerator();
+    star_one = new StarGenerator(0.0f);
+    star_two = new StarGenerator(0.0f);
 
     VAO LightBoxVAO, cubeMapVAO, particlesVAO;
     VBO LightBoxVBO(cubeVertices, sizeof(cubeVertices));
@@ -203,11 +203,10 @@ int main()
     textureFire.texUnit(particleShader, "texturePart1", 0);
     textureAwesomeFace.texUnit(particleShader, "texturePart2", 1);
     
-    float angle = glm::radians(50.0f);
+    float angle = glm::radians(00.0f);
     float X = 0.0f;
     float Y = 0.0f;
     float Z = 0.0f;
-    float timeExpl = 0.0f;
     while (!glfwWindowShouldClose(window))
     {
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -384,22 +383,22 @@ int main()
 
         float time = (float)glfwGetTime();
         if(glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS){
-            angle += 0.01f;
+            Z += 0.03f;
         }
         if(glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS){
-            angle -= 0.01f;
+            Z -= 0.03f;
         }
          if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
-            Y += 0.01f;
+            Y += 0.03f;
         }
          if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
-            Y -= 0.01f;
+            Y -= 0.03f;
         }
          if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
-            X -= 0.01f;
+            X -= 0.03f;
         }
          if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
-            X += 0.01f;
+            X += 0.03f;
         }
 
         
@@ -432,40 +431,18 @@ int main()
         ModelShader.setMat4("model", backpack_model);
         BackpackModel.Draw(ModelShader);
 
-        if (collision){
-            if (timeExpl > 3.0f){
-                timeExpl = 3.0f;
-            }
-            else{
-                timeExpl = timeExpl + 0.01f;
-                StarModel.Draw(explosionShader);
-            }
-        }
+        
         glm::vec3 StarPosition_one = glm::vec3(-1.0f, 1.0f, 3.0f);
-        star_one->draw(explosionShader, camera.Position , StarPosition_one, timeExpl, lightPos, projection5, view5);
+        star_one->draw(explosionShader, camera.Position , StarPosition_one, lightPos, projection5, view5);
+        star_one->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         StarModel.Draw(explosionShader);
+        
 
         glm::vec3 StarPosition_two = glm::vec3(10.0f, 3.0f, -2.0f);
-        star_two->draw(explosionShader, camera.Position , StarPosition_two, timeExpl*0, lightPos, projection5, view5);
+        star_two->draw(explosionShader, camera.Position , StarPosition_two, lightPos, projection5, view5);
+        star_two->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         StarModel.Draw(explosionShader);
-
-        // explosionShader.Activate();
-        // glm::vec3 StarPosition = glm::vec3(-1.0f, 1.0f, 3.0f);
-        // glm::mat4 StarModelMat = glm::mat4(1.0f);
-        // explosionShader.setVec3("viewPos", camera.Position); 
-        // explosionShader.setVec3("light",  lightPos);
-        // explosionShader.setMat4("projectionExpl", projection5);
-        // explosionShader.setMat4("viewExpl", view5);
-        // explosionShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
-        // explosionShader.setFloatReal("ambient",  0.4f);
-        // explosionShader.setFloatReal("specularStrength",  0.8f);
-        // explosionShader.setFloatReal("timeExpl", timeExpl);
-        // StarModelMat = glm::scale(StarModelMat, glm::vec3(0.005f, 0.005f, 0.005f));
-        // StarModelMat = glm::translate(StarModelMat, StarPosition); // translate it down so it's at the center of the scene
-        // unsigned int transformLocStar = glGetUniformLocation(explosionShader.ID, "transModelExpl");
-        // glUniformMatrix4fv(transformLocStar, 1, GL_FALSE, glm::value_ptr(trans5));
-        // explosionShader.setMat4("modelExpl", StarModelMat);
-        // StarModel.Draw(explosionShader);
+    
 
 
         glfwSwapBuffers(window);
