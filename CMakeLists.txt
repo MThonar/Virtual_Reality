@@ -80,6 +80,8 @@ if(CMAKE_THREAD_LIBS_INIT)
   target_link_libraries(OpenGLExample "${CMAKE_THREAD_LIBS_INIT}")
 endif()
 
+SET(GCC_COVERAGE_LINK_FLAGS "-lirrKlang")
+add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
 # Create virtual folders to make it look nicer in VS
 if(MSVC_IDE)
 	# Macro to preserve source files hierarchy in the IDE

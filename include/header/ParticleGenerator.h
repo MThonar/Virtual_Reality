@@ -9,7 +9,6 @@
 #include "../include/header/texture.h"
 
 
-
 // Represents a single particle and its state
 struct Particle {
     glm::vec3 Position, Velocity;
@@ -29,7 +28,7 @@ public:
     // constructor
     ParticleGenerator(Shader shader, unsigned int amount, glm::vec3 velocity);
     // update all particles
-    void Update(float dt,  unsigned int newParticles, glm::vec3 offset,  glm::vec3 position, float angle);
+    void Update(float dt,  unsigned int newParticles, glm::vec3 offset,  glm::vec3 position);
     // render all particles
     void Draw();
 private:
@@ -45,7 +44,7 @@ private:
     // returns the first Particle index that's currently unused e.g. Life <= 0.0f or 0 if no particle is currently inactive
     unsigned int firstUnusedParticle();
     // respawns particle
-    void respawnParticle(Particle &particle, glm::vec3 offset, glm::vec3 position, float angle);
+    void respawnParticle(Particle &particle, glm::vec3 offset, glm::vec3 position);
 };
 
 #endif
