@@ -138,14 +138,14 @@ unsigned int ParticleGenerator::firstUnusedParticle()
 void ParticleGenerator::respawnParticle(Particle &particle, glm::vec3 offset,glm::vec3 position, float angle)
 {
     // glm::vec3 yes = glm::vec3(((rand() % 100) - 100) / 100.0f, ((rand() % 100) - 100) / 100.0f, 0.0f);
-    glm::vec3 yes = glm::vec3(((rand() % 100)-70)/ 100.0f , ((rand()% 100)-70)/ 100.0f, 0.0f);
+    glm::vec3 yes = glm::vec3(((rand() % 100)-70)/ 100.0f , ((rand()% 100)-70)/ 100.0f, ((rand()% 100)-70)/ 100.0f);
     float rColor = 0.5f + ((rand() % 100) / 100.0f);
     // particle.Position = position + yes + offset*glm::vec3(1.0f, 0.0f, 0.0f)*angle;
     // double xPos = yes.x +( position.x*cos(angle)-position.y*sin(angle));
     // double yPos = yes.y +( position.x*sin(angle)-position.y*cos(angle));
     double xPos = ( position.x*cos(angle)-position.y*sin(angle)) + yes.x;
     double yPos = ( position.x*sin(angle)+position.y*cos(angle)) + yes.y;
-    particle.Position = glm::vec3(xPos, yPos, position.z);
+    particle.Position = glm::vec3(xPos, yPos, position.z+yes.z);
     particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
     particle.Life = 2.0f + ((rand() % 100) / 100.0f);
 

@@ -211,11 +211,11 @@ int main()
     LightBoxVAO.Unbind();
 	LightBoxVBO.Unbind();
     // Plane
-    VBO planeVBO(planeVertices, sizeof(planeVertices));
-    planeVAO.LinkAttrib(planeVBO, 0, 3, GL_FLOAT, 5 * sizeof(float), (void*)0);
-	planeVAO.LinkAttrib(planeVBO, 1, 2, GL_FLOAT, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    planeVAO.Unbind();
-    planeVBO.Unbind();
+    // VBO planeVBO(planeVertices, sizeof(planeVertices));
+    // planeVAO.LinkAttrib(planeVBO, 0, 3, GL_FLOAT, 5 * sizeof(float), (void*)0);
+	// planeVAO.LinkAttrib(planeVBO, 1, 2, GL_FLOAT, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    // planeVAO.Unbind();
+    // planeVBO.Unbind();
     // Cube Map
     VBO cubeMapVBO(cubeMapVertices, sizeof(cubeMapVertices));
     cubeMapVAO.Bind();
@@ -509,7 +509,6 @@ int main()
     particlesVAO.Delete();
     planeVAO.Delete();
     cubeMapVBO.Delete();
-    planeVBO.Delete();
 
     glfwTerminate();
     return 0;
