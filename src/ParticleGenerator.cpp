@@ -44,25 +44,6 @@ void ParticleGenerator::Draw()
 
 void ParticleGenerator::init()
     {   
-    // unsigned int particleVBO;
-    // float particle_quad[] = {
-    //     0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-    //     1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-    //     0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-    //     0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-    //     1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 0.0f,
-    //     1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f
-    // }; 
-    // glGenVertexArrays(1, &this->particleVAO);
-    // glGenBuffers(1, &particleVBO);
-    // glBindVertexArray(this->particleVAO);
-    // glBindBuffer(GL_ARRAY_BUFFER, particleVBO);
-    // glBufferData(GL_ARRAY_BUFFER, sizeof(particle_quad), particle_quad, GL_STATIC_DRAW);
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    // glEnableVertexAttribArray(0);
-    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    // glEnableVertexAttribArray(1);
-    // glBindVertexArray(0); 
     unsigned int particleVBO;
     float particle_quad[] = {
         -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  0.0f, -1.0f,

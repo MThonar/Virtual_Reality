@@ -21,6 +21,7 @@ public:
 	GLuint ID;
 	// Constructor: Shader Program building from 2 different shaders
 	Shader(const char* vertexFile, const char* fragmentFile);
+	Shader(const char* vertexFile, const char* fragmentFile, const char* geometryFile);
 	// Activation
 	void Activate();
 	void setBool(const std::string &name, bool value) const;
