@@ -1,5 +1,5 @@
 #include "../include/header/StarGenerator.h"
-#include "../include/irrKlang/include/irrKlang.h"
+#include "../include/irrKlang/irrKlang.h"
 using namespace irrklang;
 ISoundEngine *SoundEngine = createIrrKlangDevice();
 
