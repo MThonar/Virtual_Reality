@@ -6,13 +6,13 @@ ParticleGenerator::ParticleGenerator(Shader shader, unsigned int amount, glm::ve
      this->init();
 }
 
-void ParticleGenerator::Update(float dt, unsigned int newParticles, glm::vec3 offset,  glm::vec3 position)
+void ParticleGenerator::Update(float dt, unsigned int newParticles, glm::vec3 offset,  glm::vec3 position, float angle)
 {
     // Add new particles 
     for (unsigned int i = 0; i < newParticles; ++i)
     {
         int unusedParticle = this->firstUnusedParticle();
-        this->respawnParticle(this->particles[unusedParticle], offset, position);
+        this->respawnParticle(this->particles[unusedParticle], offset, position, angle);
     }
     // Update all particles
     for (unsigned int i = 0; i < this->amount; ++i)
@@ -22,6 +22,8 @@ void ParticleGenerator::Update(float dt, unsigned int newParticles, glm::vec3 of
         if (p.Life > 0.0f) // check if particle alive
         {	
             p.Position -= velocity * dt; 
+            p.Color.a -= dt * 2.5f;
+            // p.Color.a -= 0.5f; // transparency
         }
     }
 }
@@ -34,6 +36,7 @@ void ParticleGenerator::Draw()
         if (particle.Life > 0.0f)
         {
             this->particleShader.setVec3("offsetPart", particle.Position);
+            this->particleShader.setVec3("colorPart", particle.Color);
             glBindVertexArray(this->particleVAO);
             glDrawArrays(GL_TRIANGLES, 0, 36);
             glBindVertexArray(0);
@@ -44,6 +47,7 @@ void ParticleGenerator::Draw()
 
 void ParticleGenerator::init()
     {   
+
     unsigned int particleVBO;
     float particle_quad[] = {
         -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  0.0f, -1.0f,
@@ -131,11 +135,17 @@ unsigned int ParticleGenerator::firstUnusedParticle()
     return 0;
 }
 
-void ParticleGenerator::respawnParticle(Particle &particle, glm::vec3 offset,glm::vec3 position)
+void ParticleGenerator::respawnParticle(Particle &particle, glm::vec3 offset,glm::vec3 position, float angle)
 {
-    glm::vec3 yes = glm::vec3(((rand() % 100) - 50) / 100.0f, ((rand() % 100) - 50) / 100.0f, ((rand() % 100) - 50) / 100.0f);
+    // glm::vec3 yes = glm::vec3(((rand() % 100) - 100) / 100.0f, ((rand() % 100) - 100) / 100.0f, 0.0f);
+    glm::vec3 yes = glm::vec3(((rand() % 100)-70)/ 100.0f , ((rand()% 100)-70)/ 100.0f, 0.0f);
     float rColor = 0.5f + ((rand() % 100) / 100.0f);
-    particle.Position = position + yes + offset;
+    // particle.Position = position + yes + offset*glm::vec3(1.0f, 0.0f, 0.0f)*angle;
+    // double xPos = yes.x +( position.x*cos(angle)-position.y*sin(angle));
+    // double yPos = yes.y +( position.x*sin(angle)-position.y*cos(angle));
+    double xPos = ( position.x*cos(angle)-position.y*sin(angle)) + yes.x;
+    double yPos = ( position.x*sin(angle)+position.y*cos(angle)) + yes.y;
+    particle.Position = glm::vec3(xPos, yPos, position.z);
     particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
     particle.Life = 2.0f + ((rand() % 100) / 100.0f);
 
