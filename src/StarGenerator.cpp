@@ -1,14 +1,4 @@
 #include "../include/header/StarGenerator.h"
-<<<<<<< HEAD
-#include "../include/irrKlang/irrKlang.h"
-using namespace irrklang;
-ISoundEngine *SoundEngine = createIrrKlangDevice();
-=======
-// #include "../include/irrKlang/irrKlang.h"
-// using namespace irrklang;
-// ISoundEngine *SoundEngine = createIrrKlangDevice();
->>>>>>> 43a2caafa40b5969ca2fdbac117302413f5c55a9
-
 StarGenerator::StarGenerator(float timeExpl)
 {
     this->init();
