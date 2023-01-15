@@ -45,6 +45,7 @@ float lastFrame = 0.0f;
 
 ParticleGenerator *rain;
 ParticleGenerator *particleBall;
+
 StarGenerator *star_one;
 StarGenerator *star_two;
 StarGenerator *star_three;
@@ -230,7 +231,7 @@ int main()
         glActiveTexture(GL_TEXTURE1);
         textureAwesomeFace.Bind();  
 
-
+        
         // Constant 
         glm::mat4 projectionX = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view3D = camera.GetViewMatrix();

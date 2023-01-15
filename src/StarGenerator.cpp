@@ -1,4 +1,7 @@
 #include "../include/header/StarGenerator.h"
+#include "../include/irrKlang/include/irrKlang.h"
+using namespace irrklang;
+ISoundEngine *SoundEngine = createIrrKlangDevice();
 
 StarGenerator::StarGenerator(float timeExpl)
 {
@@ -42,6 +45,7 @@ void StarGenerator::draw(Shader explosionShader, glm::vec3 camPosition ,glm::vec
     }
 
 void StarGenerator::init(){
+    SoundEngine->drop();
     this->stars.push_back(Star());
 }
 
@@ -55,12 +59,12 @@ void StarGenerator::update(Shader explosionShader, glm::vec4 Position_1, glm::ve
         float timeExplInc = s.timeExpl;
         if (collision){
             if (timeExplInc > 6.0f){
-                // s.timeExpl = 0.0f;
                 s.StarModelMatVec = glm::scale(s.StarModelMatVec, glm::vec3(0.000005f, 0.000005f, 0.000005f));
                 s.exploded = true;
             }
             else{
                 s.timeExpl = timeExplInc + 0.1f;
+                SoundEngine->play2D("audio/bleep.mp3", false);
             }
         }
         explosionShader.setFloatReal("timeExpl", s.timeExpl);
