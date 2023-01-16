@@ -152,15 +152,15 @@ int main()
 	cubeMapVBO.Unbind();
     vector<std::string> faces
     {
-        "../cubeMap/NiagaraFalls3/posx.jpg",
-        "../cubeMap/NiagaraFalls3/negx.jpg",
-        "../cubeMap/NiagaraFalls3/negy.jpg",
-        "../cubeMap/NiagaraFalls3/posy.jpg",
-        "../cubeMap/NiagaraFalls3/posz.jpg",
-        "../cubeMap/NiagaraFalls3/negz.jpg"
+        "../cubeMap/daylight/Daylight_Box_Right.jpg",
+        "../cubeMap/daylight/Daylight_Box_Left.jpg",
+        "../cubeMap/daylight/Daylight_Box_Bottom.jpg",
+        "../cubeMap/daylight/Daylight_Box_Top.jpg",
+        "../cubeMap/daylight/Daylight_Box_Front.jpg",
+        "../cubeMap/daylight/Daylight_Box_Back.jpg"
     };
     unsigned int cubemapTexture = loadCubemap(faces); 
-   
+
 
     // Cube Map Shader
     CubemapShader.Activate();
@@ -177,13 +177,13 @@ int main()
     // set up vertex data (and buffer(s)) and configure vertex attributes
     float planeVertices[] = {
         // positions            // normals         // texcoords
-         25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
-        -25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
-        -25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
+         200.0f, -0.5f,  200.0f,  0.0f, 1.0f, 0.0f,  200.0f,  0.0f,
+        -200.0f, -0.5f,  200.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
+        -200.0f, -0.5f, -200.0f,  0.0f, 1.0f, 0.0f,   0.0f, 200.0f,
 
-         25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
-        -25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
-         25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,  25.0f, 25.0f
+         200.0f, -0.5f,  200.0f,  0.0f, 1.0f, 0.0f,  200.0f,  0.0f,
+        -200.0f, -0.5f, -200.0f,  0.0f, 1.0f, 0.0f,   0.0f, 200.0f,
+         200.0f, -0.5f, -200.0f,  0.0f, 1.0f, 0.0f,  200.0f, 200.0f
     };
 
     VAO planeVAO;
@@ -295,6 +295,24 @@ int main()
         glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glDepthFunc(GL_LEQUAL);
+        glDepthMask(GL_FALSE);
+        glm::mat4 projectionCubeMap = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 viewCubeMap = camera.GetViewMatrix();
+        viewCubeMap = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+        CubemapShader.Activate();
+        CubemapShader.setMat4("projectionCubeMap", projectionCubeMap);
+        CubemapShader.setMat4("viewCubeMap", viewCubeMap);
+        cubeMapVAO.Bind();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+        glDepthMask(GL_TRUE);
+        glDepthFunc(GL_LESS);
+
+
+
         // 2. render scene as normal using the generated depth/shadow map
         shadow.Activate();
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -392,8 +410,10 @@ int main()
         rainShader.setFloatReal("scalePart",  0.015f); 
         rainShader.setVec4("colorPart", colRain);
         rainShader.setMat4("modelPart", modelRain);
+        //renderCubemap(CubemapShader, cubeMapVAO, cubemapTexture);
+        
 
-        // renderCubemap(CubemapShader, cubeMapVAO, cubemapTexture);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
         glfwSwapInterval(1);
@@ -463,7 +483,7 @@ void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &bea
 
     // backpack
     // model = glm::mat4(1.0f);
-    // model = glm::scale(model, glm::vec3(0.25));
+    // model = glm::scale(model, glm::vec3(0.200));
     // // model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
     // shader.setMat4("model", model);
     // backpackModel.Draw(shader);
@@ -556,19 +576,4 @@ unsigned int loadCubemap(vector<std::string> faces)
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
     return textureID;
-}
-
-void renderCubemap(Shader &cubemapShader, VAO &cubemapVAO, unsigned int &cubemapTexture)
-{
-    glDepthMask(GL_FALSE);
-    glm::mat4 projectionCubeMap = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-    glm::mat4 viewCubeMap = camera.GetViewMatrix();
-    viewCubeMap = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-    cubemapShader.Activate();
-    cubemapShader.setMat4("projectionCubeMap", projectionCubeMap);
-    cubemapShader.setMat4("viewCubeMap", viewCubeMap);
-    cubemapVAO.Bind();
-    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    glDepthMask(GL_TRUE);
 }
