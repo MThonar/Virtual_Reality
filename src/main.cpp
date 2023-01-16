@@ -653,14 +653,15 @@ void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &bea
     // backpackModel.Draw(shader);
 
     //BeachBall Model
-    // trans5 = glm::rotate(trans5, (float)glfwGetTime() * glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    glm::mat4 trans5 = glm::mat4(1.0f);
+    trans5 = glm::rotate(trans5, (float)glfwGetTime() * glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
     // model = glm::rotate(model, angle, glm::vec3(1.0f, 0.0f, 0.0f));
     // model = glm::translate(model, glm::vec3(X, Y, Z)); // translate it down so it's at the center of the scene
     model = glm::mat4(1.0f);
-    model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+    model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
     model = glm::translate(model, newBallPos);
-    // unsigned int transformLocball = glGetUniformLocation(ModelShader.ID, "transModel");
-    // glUniformMatrix4fv(transformLocball, 1, GL_FALSE, glm::value_ptr(trans5));
+    unsigned int transformLocball = glGetUniformLocation(shader.ID, "transModel");
+    glUniformMatrix4fv(transformLocball, 1, GL_FALSE, glm::value_ptr(trans5));
     shader.setMat4("model", model);
     beachBallModel.Draw(shader);
 }
