@@ -29,7 +29,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
-void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &beachBallModel, glm::vec3 newBallPos);
+void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &beachBallModel, glm::vec3 newBallPos, Shader &explosionShader, glm::vec3 lightPos);
 void renderCubemap(Shader &cubemapShader, VAO &cubemapVAO, unsigned int &cubemapTexture);
 unsigned int loadTexture(const char *path);
 unsigned int loadCubemap(vector<std::string> faces);
@@ -50,12 +50,12 @@ float lastFrame = 0.0f;
 // ParticleGenerator *rain;
 // ParticleGenerator *particleBall;
 
-// StarGenerator *star_one;
-// StarGenerator *star_two;
-// StarGenerator *star_three;
-// StarGenerator *star_four;
-// StarGenerator *star_five;
-// StarGenerator *star_six;
+StarGenerator *star_one;
+StarGenerator *star_two;
+StarGenerator *star_three;
+StarGenerator *star_four;
+StarGenerator *star_five;
+StarGenerator *star_six;
 
 bool CheckCollision(glm::vec4 Position_1, glm::vec4 Position_2, float radius_1, float radius_2) // AABB - AABB collision
 {
@@ -120,7 +120,7 @@ int main()
     // Shader rainShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
     // Shader particleShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
     // Shader reflexionShader("../shaders/vertex/reflexion.vs", "../shaders/fragment/reflexion.fs");
-    // Shader explosionShader("../shaders/vertex/explode.vs", "../shaders/fragment/explode.fs",  "../shaders/geometry/explode.gs");
+    Shader explosionShader("../shaders/vertex/explode.vs", "../shaders/fragment/explode.fs",  "../shaders/geometry/explode.gs");
     // Shader planeShader("../shaders/vertex/blending.vs", "../shaders/fragment/blending.fs");
     Shader shadow("../shaders/vertex/shadow_mapping.vs", "../shaders/fragment/shadow_mapping.fs");
     Shader simpleDepthShader("../shaders/vertex/shadow_mapping_depth.vs", "../shaders/fragment/shadow_mapping_depth.fs");
@@ -131,7 +131,7 @@ int main()
     stbi_set_flip_vertically_on_load(true);
     Model backpackModel("../object/backpack/backpack.obj");
     // Model CloudModel("../object/CloudModel.obj");
-    // Model StarModel("../object/star/star.obj");
+    Model starModel("../object/star/star.obj");
     
     // build and compile textures
     // Texture textureAwesomeFace("../image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
@@ -143,12 +143,12 @@ int main()
     // rain = new ParticleGenerator(rainShader, 200, glm::vec3(0.0f,0.4f,0.0f));
     // particleBall = new ParticleGenerator(particleShader, 200, glm::vec3(0.0f,0.0f,0.0f));
 
-    // star_one = new StarGenerator(0.0f);
-    // star_two = new StarGenerator(0.0f);
-    // star_three = new StarGenerator(0.0f);
-    // star_four = new StarGenerator(0.0f);
-    // star_five = new StarGenerator(0.0f);
-    // star_six = new StarGenerator(0.0f);
+    star_one = new StarGenerator(0.0f);
+    star_two = new StarGenerator(0.0f);
+    star_three = new StarGenerator(0.0f);
+    star_four = new StarGenerator(0.0f);
+    star_five = new StarGenerator(0.0f);
+    star_six = new StarGenerator(0.0f);
 
     // VAO LightBoxVAO;
     VAO cubeMapVAO;
@@ -247,7 +247,6 @@ int main()
 
 
     // shader configuration
-    // --------------------
     shadow.Activate();
     shadow.setInt("diffuseTexture", 0);
     shadow.setInt("shadowMap", 1);
@@ -347,14 +346,11 @@ int main()
         // }
 
         // MODELS   
-        //glm::mat4 projection5 = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        //glm::mat4 view5 = camera.GetViewMatrix();
-        glm::mat4 model = glm::mat4(1.0f);
+        //glm::mat4 model = glm::mat4(1.0f);
         // glm::mat4 bb_model = glm::mat4(1.0f);
         // glm::mat4 sand_model = glm::mat4(1.0f);
         // glm::mat4 backpack_model = glm::mat4(1.0f);
-        glm::mat4 trans5 = glm::mat4(1.0f);
-        ModelShader.Activate();
+        //glm::mat4 trans5 = glm::mat4(1.0f);
 
         // MODEL CLOUD
         // glm::mat4 modelCloud = glm::mat4(1.0f);
@@ -372,6 +368,7 @@ int main()
         // ModelShader.setMat4("model", modelCloud);
         // CloudModel.Draw(ModelShader);
  
+        ModelShader.Activate();
         ModelShader.setVec3("viewPos", camera.Position); 
         ModelShader.setVec3("lightPos",  lightPos);
         ModelShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
@@ -407,8 +404,8 @@ int main()
         // BeachBallModel_2.Draw(ModelShader);
 
         // bool collision;
-        glm::vec3 Pos5 = glm::vec3(1.0f, 1.0f, 1.0f);
-        glm::vec4 position_of_first_ball =  model * glm::vec4(Pos5, 1.0);
+        // glm::vec3 Pos5 = glm::vec3(1.0f, 1.0f, 1.0f);
+        // glm::vec4 position_of_first_ball =  model * glm::vec4(Pos5, 1.0);
         // glm::vec4 position_of_second_ball = bb_model * glm::vec4(Pos5, 1.0);
         // collision = CheckCollision(position_of_first_ball, position_of_second_ball, 1.85f, 1.85f);
         // if (collision){
@@ -505,8 +502,18 @@ int main()
         glClear(GL_DEPTH_BUFFER_BIT);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, floorTexture);
-        renderScene(simpleDepthShader, backpackModel, planeVAO, beachBallModel, newBallPos);
+        renderScene(simpleDepthShader, backpackModel, planeVAO, beachBallModel, newBallPos, explosionShader, lightPos);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // glm::vec3 StarPosition_one = glm::vec3(-3.0f, 3.0f, 3.0f);
+        // star_one->draw(explosionShader, camera.Position , StarPosition_one, lightPos, projection5, view5);
+        // star_one->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
+        // StarModel.Draw(explosionShader);
+        
+        // glm::vec3 StarPosition_two = glm::vec3(3.0f, 3.0f, -3.0f);
+        // star_two->draw(explosionShader, camera.Position , StarPosition_two, lightPos, projection5, view5);
+        // star_two->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
+        // StarModel.Draw(explosionShader);
 
         // reset viewport
         glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
@@ -526,7 +533,50 @@ int main()
         glBindTexture(GL_TEXTURE_2D, floorTexture);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, depthMap);
-        renderScene(shadow, backpackModel, planeVAO, beachBallModel, newBallPos);
+        renderScene(shadow, backpackModel, planeVAO, beachBallModel, newBallPos, explosionShader, lightPos);
+        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 bb_model = glm::mat4(1.0f);
+        bb_model = glm::translate(bb_model, glm::vec3(-2.2f, 4.0f, 0.0f)); // translate it down so it's at the center of the scene
+        bb_model= glm::scale(bb_model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        model = glm::rotate(model, angle, glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::translate(model, glm::vec3(X, Y, Z)); // translate it down so it's at the center of the scene
+        model= glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        glm::mat4 projection5 = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view5 = camera.GetViewMatrix();
+        glm::vec3 Pos5 = glm::vec3(1.0f, 1.0f, 1.0f);
+        glm::vec4 position_of_first_ball =  model * glm::vec4(Pos5, 1.0);
+        glm::vec4 position_of_second_ball = bb_model * glm::vec4(Pos5, 1.0);
+        // stars
+        glm::vec3 StarPosition_one = glm::vec3(-3.0f, 3.0f, 3.0f);
+        star_one->draw(explosionShader, camera.Position , StarPosition_one, lightPos, projection5, view5);
+        star_one->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
+        starModel.Draw(explosionShader);
+        
+        glm::vec3 StarPosition_two = glm::vec3(3.0f, 3.0f, -3.0f);
+        star_two->draw(explosionShader, camera.Position , StarPosition_two, lightPos, projection5, view5);
+        star_two->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
+        starModel.Draw(explosionShader);
+
+        glm::vec3 StarPosition_three = glm::vec3(3.0f, 3.0f, 3.0f);
+        star_three->draw(explosionShader, camera.Position , StarPosition_three, lightPos, projection5, view5);
+        star_three->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
+        starModel.Draw(explosionShader);
+
+        glm::vec3 StarPosition_four = glm::vec3(-3.0f, -3.0f, 3.0f);
+        star_four->draw(explosionShader, camera.Position , StarPosition_four, lightPos, projection5, view5);
+        star_four->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
+        starModel.Draw(explosionShader);
+
+        glm::vec3 StarPosition_five = glm::vec3(0.0f, 0.0f, 3.0f);
+        star_five->draw(explosionShader, camera.Position , StarPosition_five, lightPos, projection5, view5);
+        star_five->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
+        starModel.Draw(explosionShader);
+
+        glm::vec3 StarPosition_six = glm::vec3(3.0f, 3.0f, 0.0f);
+        star_six->draw(explosionShader, camera.Position , StarPosition_six, lightPos, projection5, view5);
+        star_six->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
+        starModel.Draw(explosionShader);
+    
         // renderCubemap(CubemapShader, cubeMapVAO, cubemapTexture);
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -587,7 +637,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 }
 
 // renders the 3D scene
-void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &beachBallModel, glm::vec3 newBallPos)
+void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &beachBallModel, glm::vec3 newBallPos, Shader &explosionShader, glm::vec3 lightPos)
 {
     // floor
     glm::mat4 model = glm::mat4(1.0f);
