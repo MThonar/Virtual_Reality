@@ -114,31 +114,23 @@ int main()
     
 
     // build and compile shaders
-    // Shader lightShader("../shaders/vertex/3D.vs", "../shaders/fragment/light.fs"); 
-    Shader ModelShader("../shaders/vertex/model_loading.vs", "../shaders/fragment/model_loading.fs"); 
     Shader CubemapShader("../shaders/vertex/cubemap.vs", "../shaders/fragment/cubemap.fs"); 
     Shader rainShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
     Shader particleShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
-    // Shader reflexionShader("../shaders/vertex/reflexion.vs", "../shaders/fragment/reflexion.fs");
     Shader explosionShader("../shaders/vertex/explode.vs", "../shaders/fragment/explode.fs",  "../shaders/geometry/explode.gs");
-    // Shader planeShader("../shaders/vertex/blending.vs", "../shaders/fragment/blending.fs");
     Shader shadow("../shaders/vertex/shadow_mapping.vs", "../shaders/fragment/shadow_mapping.fs");
     Shader simpleDepthShader("../shaders/vertex/shadow_mapping_depth.vs", "../shaders/fragment/shadow_mapping_depth.fs");
 
     // build and compile models
     Model beachBallModel("../object/beachball/beachball.obj");
-    //Model BeachBallModel_2("../object/beachball/beachball.obj");
     stbi_set_flip_vertically_on_load(true);
     Model backpackModel("../object/backpack/backpack.obj");
-    // Model CloudModel("../object/CloudModel.obj");
     Model starModel("../object/star/star.obj");
     
     // build and compile textures
-    // Texture textureAwesomeFace("../image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     Texture textureWater("../image/dropWaterTexture.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     Texture textureFire("../image/fireTexture.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     Texture textureSand("../image/grass.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    // Texture textureTransparent("../image/blending_transparent_window.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 
     rain = new ParticleGenerator(rainShader, 200, glm::vec3(0.0f,0.4f,0.0f));
     particleBall = new ParticleGenerator(particleShader, 200, glm::vec3(0.0f,0.0f,0.0f));
@@ -150,20 +142,8 @@ int main()
     star_five = new StarGenerator(0.0f);
     star_six = new StarGenerator(0.0f);
 
-    // VAO LightBoxVAO;
     VAO cubeMapVAO;
-    // VAO particlesVAO;
-    // VBO LightBoxVBO(cubeVertices, sizeof(cubeVertices));
     VBO cubeMapVBO(cubeMapVertices, sizeof(cubeMapVertices));
-    
-    // Light Box
-    // LightBoxVAO.Bind();
-    // LightBoxVAO.LinkAttrib(LightBoxVBO, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0);
-	// LightBoxVAO.LinkAttrib(LightBoxVBO, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-    // LightBoxVAO.LinkAttrib(LightBoxVBO, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-    // LightBoxVAO.LinkAttrib(LightBoxVBO, 3, 3, GL_FLOAT, 11 * sizeof(float), (void*)(8 * sizeof(float)));
-    // LightBoxVAO.Unbind();
-	// LightBoxVBO.Unbind();
     
     // Cube Map
     cubeMapVAO.Bind();
@@ -185,11 +165,6 @@ int main()
     // Cube Map Shader
     CubemapShader.Activate();
     CubemapShader.setInt("skybox", 0);
-
-    // Light Shader
-    // lightShader.Activate();
-    // textureAwesomeFace.texUnit(lightShader, "texture1", 0);
-    // textureAwesomeFace.texUnit(lightShader, "texture2", 1);
     
     // Particle Shader
     particleShader.Activate();
@@ -266,8 +241,6 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
-
-        
         // Constant 
         glm::mat4 projectionX = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view3D = camera.GetViewMatrix();
@@ -275,107 +248,6 @@ int main()
         lightPos.x = sin(glfwGetTime()) * 3.0f;
         lightPos.z = cos(glfwGetTime()) * 2.0f;
         lightPos.y = 5.0 + cos(glfwGetTime()) * 1.0f;
-
-        // REFLEXION BOX
-        // reflexionShader.Activate();
-        // glm::mat4 modelRefl = glm::mat4(1.0f);
-       
-        // reflexionShader.setMat4("projectionRefl", projectionX);
-        // reflexionShader.setMat4("viewRefl", view3D);
-        // reflexionShader.setVec3("cameraPos", camera.Position); 
-        // reflexionShader.setMat4("modelRefl", modelRefl);
-        // LightBoxVAO.Bind(); 
-        // glActiveTexture(GL_TEXTURE0);
-        // glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture); 
-        // glDrawArrays(GL_TRIANGLES, 0, 36);
-        // glBindVertexArray(0);
-
-        // LIGHT BOX
-        // glActiveTexture(GL_TEXTURE0);
-        // textureTransparent.Bind();
-        // glActiveTexture(GL_TEXTURE1);
-        // textureTransparent.Bind(); 
-        // glm::mat4 model3D = glm::mat4(1.0f);
-        // glm::mat4 trans3 = glm::mat4(1.0f);
-        // model3D = glm::rotate(model3D, 0.0f, glm::vec3(0.5f, 1.0f, 0.0f)); 
-        // trans3 = glm::translate(trans3, lightPos);
-        // trans3 = glm::rotate(trans3, 0.0f, glm::vec3(1.0f, 0.0f, 1.0f));
-        // lightShader.Activate();
-        // lightShader.setVec3("viewPos", camera.Position); 
-        // lightShader.setVec3("lightPos",  lightPos);
-        // lightShader.setMat4("projection3D", projectionX);
-        // lightShader.setMat4("view3D", view3D);
-        // lightShader.setVec3("lightColor",  100.0f, 100.0f, 100.0f);
-        // lightShader.setFloatReal("ambientStrength",  100.0f);
-        // lightShader.setFloatReal("specularStrength",  0.5f);
-        // int modelLoc = glGetUniformLocation(lightShader.ID, "model3D");
-        // glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model3D));
-        // LightBoxVAO.Bind(); 
-        // unsigned int transformLoc3 = glGetUniformLocation(lightShader.ID, "transformText");
-        // glUniformMatrix4fv(transformLoc3, 1, GL_FALSE, glm::value_ptr(trans3));
-        // glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        // SMALL BOXES
-        // lightShader.setFloatReal("ambientStrength",  0.1f); 
-        // lightShader.setFloatReal("specularStrength",  0.5f);
-        // for(unsigned int i = 0; i < 2; i++)
-        // {   
-        //     glm::mat4 trans3 = glm::mat4(1.0f);
-        //     trans3 = glm::translate(trans3, glm::vec3(-0.0f, -0.0f, -0.0f));
-        //     glm::mat4 cubeModel = glm::mat4(1.0f);
-        //     cubeModel = glm::translate(cubeModel, cubePositions[i]);
-        //     float angle = 20.0f * i; 
-        //     if (i%2) {
-        //         lightShader.setVec3("lightColor",  0.0f, 1.0f, 0.0f);
-
-        //         cubeModel = glm::rotate(cubeModel, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-
-        //         trans3 = glm::rotate(trans3, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-        //     }
-        //     else{
-        //         lightShader.setVec3("lightColor",  1.0f, 0.0f, 0.0f);
-
-        //         cubeModel = glm::rotate(cubeModel, 0.0f, glm::vec3(1.0f, 0.3f, 0.5f));
-        //         trans3 = glm::rotate(trans3, 0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-        //     }
-        //     lightShader.setMat4("model3D", cubeModel);
-
-        //     unsigned int transformLoc3 = glGetUniformLocation(lightShader.ID, "transformText");
-        //     glUniformMatrix4fv(transformLoc3, 1, GL_FALSE, glm::value_ptr(trans3));
-        //     glDrawArrays(GL_TRIANGLES, 0, 36);
-        // }
-
-        // MODELS   
-        //glm::mat4 model = glm::mat4(1.0f);
-        // glm::mat4 bb_model = glm::mat4(1.0f);
-        // glm::mat4 sand_model = glm::mat4(1.0f);
-        // glm::mat4 backpack_model = glm::mat4(1.0f);
-        //glm::mat4 trans5 = glm::mat4(1.0f);
-
-        // MODEL CLOUD
-        // glm::mat4 modelCloud = glm::mat4(1.0f);
-        // glm::vec3 cloudPosition = glm::vec3(3.0f, 1.0f, 3.0f);
-        // ModelShader.setVec3("viewPos", camera.Position); 
-        // ModelShader.setVec3("lightPos",  lightPos);
-        // ModelShader.setMat4("projection", projection5);
-        // ModelShader.setMat4("view", view5);
-        // ModelShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
-        // ModelShader.setFloatReal("ambient",  0.4f);
-        // ModelShader.setFloatReal("specularStrength",  0.8f);
-        // modelCloud = glm::translate(modelCloud, cloudPosition); // translate it down so it's at the center of the scene
-        // unsigned int transformLocCloud = glGetUniformLocation(ModelShader.ID, "transModel");
-        // glUniformMatrix4fv(transformLocCloud, 1, GL_FALSE, glm::value_ptr(trans5));
-        // ModelShader.setMat4("model", modelCloud);
-        // CloudModel.Draw(ModelShader);
- 
-        ModelShader.Activate();
-        ModelShader.setVec3("viewPos", camera.Position); 
-        ModelShader.setVec3("lightPos",  lightPos);
-        ModelShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
-        ModelShader.setFloatReal("ambient",  0.4f);
-        ModelShader.setFloatReal("specularStrength",  0.8f);
-        //ModelShader.setMat4("projection5", projection5);
-        //ModelShader.setMat4("view", view5);
 
         float time = (float)glfwGetTime();
         if(glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS){
@@ -398,70 +270,6 @@ int main()
         }
         glm::vec3 newBallPos = glm::vec3 (X,Y,Z);
 
-        // bb_model = glm::translate(bb_model, glm::vec3(-2.2f, 4.0f, 0.0f)); // translate it down so it's at the center of the scene
-        // bb_model= glm::scale(bb_model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        // ModelShader.setMat4("model", bb_model);
-        // BeachBallModel_2.Draw(ModelShader);
-
-        // bool collision;
-        // glm::vec3 Pos5 = glm::vec3(1.0f, 1.0f, 1.0f);
-        // glm::vec4 position_of_first_ball =  model * glm::vec4(Pos5, 1.0);
-        // glm::vec4 position_of_second_ball = bb_model * glm::vec4(Pos5, 1.0);
-        // collision = CheckCollision(position_of_first_ball, position_of_second_ball, 1.85f, 1.85f);
-        // if (collision){
-        //     backpack_model= glm::scale(backpack_model, glm::vec3(0.3f, 0.3f, 0.3f));	// it's a bit too big for our scene, so scale it down
-        // }
-        // else{
-        //     backpack_model= glm::scale(backpack_model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        // }
-        
-        // glm::vec3 StarPosition_one = glm::vec3(-3.0f, 3.0f, 3.0f);
-        // star_one->draw(explosionShader, camera.Position , StarPosition_one, lightPos, projection5, view5);
-        // star_one->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
-        // StarModel.Draw(explosionShader);
-        
-        // glm::vec3 StarPosition_two = glm::vec3(3.0f, 3.0f, -3.0f);
-        // star_two->draw(explosionShader, camera.Position , StarPosition_two, lightPos, projection5, view5);
-        // star_two->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
-        // StarModel.Draw(explosionShader);
-
-        // glm::vec3 StarPosition_three = glm::vec3(3.0f, 3.0f, 3.0f);
-        // star_three->draw(explosionShader, camera.Position , StarPosition_three, lightPos, projection5, view5);
-        // star_three->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
-        // StarModel.Draw(explosionShader);
-
-        // glm::vec3 StarPosition_four = glm::vec3(-3.0f, -3.0f, 3.0f);
-        // star_four->draw(explosionShader, camera.Position , StarPosition_four, lightPos, projection5, view5);
-        // star_four->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
-        // StarModel.Draw(explosionShader);
-
-        // glm::vec3 StarPosition_five = glm::vec3(0.0f, 0.0f, 3.0f);
-        // star_five->draw(explosionShader, camera.Position , StarPosition_five, lightPos, projection5, view5);
-        // star_five->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
-        // StarModel.Draw(explosionShader);
-
-        // glm::vec3 StarPosition_six = glm::vec3(3.0f, 3.0f, 0.0f);
-        // star_six->draw(explosionShader, camera.Position , StarPosition_six, lightPos, projection5, view5);
-        // star_six->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
-        // StarModel.Draw(explosionShader);
-    
-
-        
-        
-        // particleBall->Update(deltaTime, 300, glm::vec3(-1.0f, 1.0f, 0.0f), glm::vec3(position_of_first_ball.x, position_of_first_ball.y, position_of_first_ball.z), angle);
-        // particleBall->Update(deltaTime, 300, angle* glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(X, Y, Z));
-        
-        // glm::mat4 projectionPart = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        // glm::mat4 viewPart = camera.GetViewMatrix();
-        // glm::vec4 colPart(1.0f, 1.0f, 1.0f, 1.0f);
-        // glm::mat4 modelPart = glm::mat4(1.0f);
-        // particleShader.setMat4("projectionPart", projectionPart);
-        // particleShader.setMat4("viewPart", viewPart); 
-        // particleShader.setFloatReal("scalePart",  0.01f);       
-        // particleShader.setVec4("colorPart", colPart);      
-        // particleShader.setMat4("modelPart", modelPart);
-        // particleBall->Draw();
-
         // 1. render depth of scene to texture (from light's perspective)
         // --------------------------------------------------------------
         glm::mat4 lightProjection, lightView;
@@ -482,16 +290,6 @@ int main()
         glBindTexture(GL_TEXTURE_2D, floorTexture);
         renderScene(simpleDepthShader, backpackModel, planeVAO, beachBallModel, newBallPos, explosionShader, lightPos);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        // glm::vec3 StarPosition_one = glm::vec3(-3.0f, 3.0f, 3.0f);
-        // star_one->draw(explosionShader, camera.Position , StarPosition_one, lightPos, projection5, view5);
-        // star_one->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
-        // StarModel.Draw(explosionShader);
-        
-        // glm::vec3 StarPosition_two = glm::vec3(3.0f, 3.0f, -3.0f);
-        // star_two->draw(explosionShader, camera.Position , StarPosition_two, lightPos, projection5, view5);
-        // star_two->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
-        // StarModel.Draw(explosionShader);
 
         // reset viewport
         glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
