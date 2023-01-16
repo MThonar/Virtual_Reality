@@ -47,8 +47,8 @@ bool firstMouse = true;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
-// ParticleGenerator *rain;
-// ParticleGenerator *particleBall;
+ParticleGenerator *rain;
+ParticleGenerator *particleBall;
 
 StarGenerator *star_one;
 StarGenerator *star_two;
@@ -116,9 +116,9 @@ int main()
     // build and compile shaders
     // Shader lightShader("../shaders/vertex/3D.vs", "../shaders/fragment/light.fs"); 
     Shader ModelShader("../shaders/vertex/model_loading.vs", "../shaders/fragment/model_loading.fs"); 
-    // Shader CubemapShader("../shaders/vertex/cubemap.vs", "../shaders/fragment/cubemap.fs"); 
-    // Shader rainShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
-    // Shader particleShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
+    Shader CubemapShader("../shaders/vertex/cubemap.vs", "../shaders/fragment/cubemap.fs"); 
+    Shader rainShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
+    Shader particleShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
     // Shader reflexionShader("../shaders/vertex/reflexion.vs", "../shaders/fragment/reflexion.fs");
     Shader explosionShader("../shaders/vertex/explode.vs", "../shaders/fragment/explode.fs",  "../shaders/geometry/explode.gs");
     // Shader planeShader("../shaders/vertex/blending.vs", "../shaders/fragment/blending.fs");
@@ -135,13 +135,13 @@ int main()
     
     // build and compile textures
     // Texture textureAwesomeFace("../image/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    // Texture textureWater("../image/dropWaterTexture.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    // Texture textureFire("../image/fireTexture.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    Texture textureWater("../image/dropWaterTexture.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    Texture textureFire("../image/fireTexture.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     Texture textureSand("../image/grass.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     // Texture textureTransparent("../image/blending_transparent_window.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 
-    // rain = new ParticleGenerator(rainShader, 200, glm::vec3(0.0f,0.4f,0.0f));
-    // particleBall = new ParticleGenerator(particleShader, 200, glm::vec3(0.0f,0.0f,0.0f));
+    rain = new ParticleGenerator(rainShader, 200, glm::vec3(0.0f,0.4f,0.0f));
+    particleBall = new ParticleGenerator(particleShader, 200, glm::vec3(0.0f,0.0f,0.0f));
 
     star_one = new StarGenerator(0.0f);
     star_two = new StarGenerator(0.0f);
@@ -166,25 +166,25 @@ int main()
 	// LightBoxVBO.Unbind();
     
     // Cube Map
-    // cubeMapVAO.Bind();
-    // cubeMapVAO.LinkAttrib(cubeMapVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
-    // cubeMapVAO.Unbind();
-	// cubeMapVBO.Unbind();
-    // vector<std::string> faces
-    // {
-    //     "../cubeMap/NiagaraFalls3/posx.jpg",
-    //     "../cubeMap/NiagaraFalls3/negx.jpg",
-    //     "../cubeMap/NiagaraFalls3/negy.jpg",
-    //     "../cubeMap/NiagaraFalls3/posy.jpg",
-    //     "../cubeMap/NiagaraFalls3/posz.jpg",
-    //     "../cubeMap/NiagaraFalls3/negz.jpg"
-    // };
-    // unsigned int cubemapTexture = loadCubemap(faces); 
+    cubeMapVAO.Bind();
+    cubeMapVAO.LinkAttrib(cubeMapVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
+    cubeMapVAO.Unbind();
+	cubeMapVBO.Unbind();
+    vector<std::string> faces
+    {
+        "../cubeMap/NiagaraFalls3/posx.jpg",
+        "../cubeMap/NiagaraFalls3/negx.jpg",
+        "../cubeMap/NiagaraFalls3/negy.jpg",
+        "../cubeMap/NiagaraFalls3/posy.jpg",
+        "../cubeMap/NiagaraFalls3/posz.jpg",
+        "../cubeMap/NiagaraFalls3/negz.jpg"
+    };
+    unsigned int cubemapTexture = loadCubemap(faces); 
    
 
     // Cube Map Shader
-    // CubemapShader.Activate();
-    // CubemapShader.setInt("skybox", 0);
+    CubemapShader.Activate();
+    CubemapShader.setInt("skybox", 0);
 
     // Light Shader
     // lightShader.Activate();
@@ -192,9 +192,9 @@ int main()
     // textureAwesomeFace.texUnit(lightShader, "texture2", 1);
     
     // Particle Shader
-    // particleShader.Activate();
-    // textureFire.texUnit(particleShader, "texturePart1", 0);
-    // textureFire.texUnit(particleShader, "texturePart2", 1);
+    particleShader.Activate();
+    textureFire.texUnit(particleShader, "texturePart1", 0);
+    textureFire.texUnit(particleShader, "texturePart2", 1);
 
     // Plane shader
     unsigned int floorTexture = loadTexture("../image/sand.jpg");
@@ -445,31 +445,9 @@ int main()
         // star_six->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         // StarModel.Draw(explosionShader);
     
-        // RAIN
-        // glActiveTexture(GL_TEXTURE0);
-        // textureWater.Bind();
-        // glActiveTexture(GL_TEXTURE1);
-        // textureWater.Bind();
-        // rainShader.Activate();
-        // rain->Update(deltaTime, 300, glm::vec3(0.2f, -0.7f, 0.0f), cloudPosition, 0.0f);
-        // rain->Draw(); 
-        // glm::mat4 projectionRain = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        // glm::mat4 viewRain = camera.GetViewMatrix();
-        // glm::vec4 colRain(1.0f, 1.0f, 1.0f, 1.0f);
-        // glm::mat4 modelRain = glm::mat4(1.0f);
-        // rainShader.setMat4("projectionPart", projectionRain);
-        // rainShader.setMat4("viewPart", viewRain); 
-        // rainShader.setFloatReal("scalePart",  0.015f); 
-        // rainShader.setVec4("colorPart", colRain);
-        // rainShader.setMat4("modelPart", modelRain);
+
         
-        // PARTICLES BALL     
-        // glActiveTexture(GL_TEXTURE0);
-        // textureFire.Bind();
-        // glActiveTexture(GL_TEXTURE1);
-        // textureFire.Bind();
-        // particleShader.Activate();
-        // particleBall->Update(deltaTime, 300, glm::vec3(-1.0f, 1.0f, 0.0f), glm::vec3(X, Y, Z), angle);
+        
         // particleBall->Update(deltaTime, 300, glm::vec3(-1.0f, 1.0f, 0.0f), glm::vec3(position_of_first_ball.x, position_of_first_ball.y, position_of_first_ball.z), angle);
         // particleBall->Update(deltaTime, 300, angle* glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(X, Y, Z));
         
@@ -576,7 +554,47 @@ int main()
         star_six->draw(explosionShader, camera.Position , StarPosition_six, lightPos, projection5, view5);
         star_six->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
+
+        // particleBall
+        glActiveTexture(GL_TEXTURE0);
+        textureFire.Bind();
+        glActiveTexture(GL_TEXTURE1);
+        textureFire.Bind();
+        particleShader.Activate();
+        particleBall->Update(deltaTime, 300, glm::vec3(-1.0f, 1.0f, 0.0f), glm::vec3(X, Y, Z), angle);
+        // particleBall->Update(deltaTime, 300, glm::vec3(-1.0f, 1.0f, 0.0f), glm::vec3(position_of_first_ball.x, position_of_first_ball.y, position_of_first_ball.z), angle);
+        // particleBall->Update(deltaTime, 300, angle* glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(X, Y, Z));
+        
+        glm::mat4 projectionPart = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 viewPart = camera.GetViewMatrix();
+        glm::vec4 colPart(1.0f, 1.0f, 1.0f, 1.0f);
+        glm::mat4 modelPart = glm::mat4(1.0f);
+        particleShader.setMat4("projectionPart", projectionPart);
+        particleShader.setMat4("viewPart", viewPart); 
+        particleShader.setFloatReal("scalePart",  0.01f);       
+        particleShader.setVec4("colorPart", colPart);      
+        particleShader.setMat4("modelPart", modelPart);
+        particleBall->Draw(); 
     
+        // RAIN
+        glm::vec3 cloudPosition = glm::vec3(3.0f, 1.0f, 3.0f); // CHANGE THIS WITH THE SHOWER
+        glActiveTexture(GL_TEXTURE0);
+        textureWater.Bind();
+        glActiveTexture(GL_TEXTURE1);
+        textureWater.Bind();
+        rainShader.Activate();
+        rain->Update(deltaTime, 300, glm::vec3(0.2f, -0.7f, 0.0f), cloudPosition, 0.0f);
+        rain->Draw(); 
+        glm::mat4 projectionRain = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 viewRain = camera.GetViewMatrix();
+        glm::vec4 colRain(1.0f, 1.0f, 1.0f, 1.0f);
+        glm::mat4 modelRain = glm::mat4(1.0f);
+        rainShader.setMat4("projectionPart", projectionRain);
+        rainShader.setMat4("viewPart", viewRain); 
+        rainShader.setFloatReal("scalePart",  0.015f); 
+        rainShader.setVec4("colorPart", colRain);
+        rainShader.setMat4("modelPart", modelRain);
+
         // renderCubemap(CubemapShader, cubeMapVAO, cubemapTexture);
         glfwSwapBuffers(window);
         glfwPollEvents();
