@@ -273,11 +273,11 @@ int main()
         // Constant 
         glm::mat4 projectionX = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view3D = camera.GetViewMatrix();
-        glm::vec3 lightPos(15.0f, 0.0f, -15.0f);
+        glm::vec3 lightPos(9.0f, 0.0f, -15.0f);
         glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
-        // lightPos.x = sin(glfwGetTime()) * 3.0f;
+        lightPos.x = cos(glfwGetTime()/5.0) * 10.0f;
         // lightPos.z = cos(glfwGetTime()) * 2.0f;
-        // lightPos.y = 5.0 + cos(glfwGetTime()) * 1.0f;
+        lightPos.y = sin(glfwGetTime()/5.0) * 10.0f;
 
         float time = (float)glfwGetTime();
         if(glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS){
@@ -303,7 +303,7 @@ int main()
         // 1. render depth of scene to texture (from light's perspective)
         glm::mat4 lightProjection, lightView;
         glm::mat4 lightSpaceMatrix;
-        float near_plane = 1.0f, far_plane = 20.0f;
+        float near_plane = 1.0f, far_plane = 40.0f;
         //lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
         lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
         lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
@@ -508,7 +508,19 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 // renders the 3D scene
 void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &beachBallModel, glm::vec3 newBallPos, Model &showerModel, Model &sunModel, glm::vec3 lightPos)
 {
-    shader.setFloatReal("ambientStrength", 0.8f);
+    if (lightPos.y > 4.0f)
+    {
+        shader.setFloatReal("ambientStrength", 1.0f);
+    }
+    else if (lightPos.y > 2.0f && lightPos.y < 4.0f)
+    {
+        shader.setFloatReal("ambientStrength", (0.4 * lightPos.y) - 0.6);
+    }
+    else
+    {
+        shader.setFloatReal("ambientStrength", 0.2f);
+
+    }
     // floor
     glm::mat4 model = glm::mat4(1.0f);
     shader.setMat4("model", model);
