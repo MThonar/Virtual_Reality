@@ -29,7 +29,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
-void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &beachBallModel, glm::vec3 newBallPos, Shader &explosionShader, glm::vec3 lightPos);
+void renderModel(Shader &shader, Model &backpackModel, Model &showerModel);
+void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &beachBallModel, glm::vec3 newBallPos, Shader &explosionShader, glm::vec3 lightPos,VAO &littlePlaneVAO);
 void renderCubemap(Shader &cubemapShader, VAO &cubemapVAO, unsigned int &cubemapTexture);
 unsigned int loadTexture(const char *path);
 unsigned int loadCubemap(vector<std::string> faces);
@@ -111,6 +112,7 @@ int main()
     glEnable(GL_DEPTH_TEST);  
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     
 
     // build and compile shaders
@@ -120,11 +122,13 @@ int main()
     Shader explosionShader("../shaders/vertex/explode.vs", "../shaders/fragment/explode.fs",  "../shaders/geometry/explode.gs");
     Shader shadow("../shaders/vertex/shadow_mapping.vs", "../shaders/fragment/shadow_mapping.fs");
     Shader simpleDepthShader("../shaders/vertex/shadow_mapping_depth.vs", "../shaders/fragment/shadow_mapping_depth.fs");
+    Shader modelShader("../shaders/vertex/model_loading.vs", "../shaders/fragment/model_loading.fs");
 
     // build and compile models
     Model beachBallModel("../object/beachball/beachball.obj");
     stbi_set_flip_vertically_on_load(true);
     Model backpackModel("../object/backpack/backpack.obj");
+    Model showerModel("../object/shower/shower.obj");
     Model starModel("../object/star/star.obj");
     
     // build and compile textures
@@ -173,6 +177,7 @@ int main()
 
     // Plane shader
     unsigned int floorTexture = loadTexture("../image/sand.jpg");
+    unsigned int grassTexture = loadTexture("../image/grass.png");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     float planeVertices[] = {
@@ -186,15 +191,34 @@ int main()
          200.0f, -0.5f, -200.0f,  0.0f, 1.0f, 0.0f,  200.0f, 200.0f
     };
 
+    float littlePlaneVertices[] = {
+        // positions            // normals         // texcoords
+         0.0f, 0.5f,   0.0f,   0.0f, 1.0f, 0.0f,  1.0f,  1.0f,
+         0.0f, -0.5f,  0.0f,   0.0f, 1.0f, 0.0f,   1.0f,  0.0f,
+         1.0f, -0.5f,  0.0f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
+
+         0.0f, 0.5f,  0.0f,    0.0f, 1.0f, 0.0f,  1.0f,  1.0f,
+         1.0f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
+         1.0f, 0.5f,  0.0f,    0.0f, 1.0f, 0.0f,  0.0f, 1.0f
+    };
+
     VAO planeVAO;
     VBO planeVBO(planeVertices, sizeof(planeVertices));
-
     planeVAO.Bind();
     planeVAO.LinkAttrib(planeVBO, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
     planeVAO.LinkAttrib(planeVBO, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     planeVAO.LinkAttrib(planeVBO, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     planeVAO.Unbind();
     planeVBO.Unbind();
+
+    VAO littlePlaneVAO;
+    VBO littlePlaneVBO(littlePlaneVertices, sizeof(littlePlaneVertices));
+    littlePlaneVAO.Bind();
+    littlePlaneVAO.LinkAttrib(littlePlaneVBO, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
+    littlePlaneVAO.LinkAttrib(littlePlaneVBO, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    littlePlaneVAO.LinkAttrib(littlePlaneVBO, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    littlePlaneVAO.Unbind();
+    littlePlaneVBO.Unbind();
 
     // configure depth map FBO
     const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
@@ -225,6 +249,9 @@ int main()
     shadow.Activate();
     shadow.setInt("diffuseTexture", 0);
     shadow.setInt("shadowMap", 1);
+
+    modelShader.Activate();
+    modelShader.setInt("textureNormal", 0);
     
     float angle = glm::radians(00.0f);
     float X = 0.0f;
@@ -245,6 +272,7 @@ int main()
         glm::mat4 projectionX = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view3D = camera.GetViewMatrix();
         glm::vec3 lightPos(-2.0f, 4.0f, -1.0f);
+        glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
         lightPos.x = sin(glfwGetTime()) * 3.0f;
         lightPos.z = cos(glfwGetTime()) * 2.0f;
         lightPos.y = 5.0 + cos(glfwGetTime()) * 1.0f;
@@ -288,7 +316,7 @@ int main()
         glClear(GL_DEPTH_BUFFER_BIT);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, floorTexture);
-        renderScene(simpleDepthShader, backpackModel, planeVAO, beachBallModel, newBallPos, explosionShader, lightPos);
+        renderScene(simpleDepthShader, backpackModel, planeVAO, beachBallModel, newBallPos, explosionShader, lightPos, littlePlaneVAO);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         // reset viewport
@@ -312,8 +340,22 @@ int main()
         glDepthFunc(GL_LESS);
 
 
+        // 2. render models        
+        modelShader.Activate();
+        glm::mat4 projectionModel = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 viewModel = camera.GetViewMatrix();
+        modelShader.setMat4("projection", projectionModel);
+        modelShader.setMat4("view", viewModel);
+        modelShader.setVec3("viewPos", camera.Position);
+        modelShader.setVec3("lightPos", lightPos);
+        modelShader.setVec3("lightColor", lightColor);
+        modelShader.setFloat("ambient", 0.4f);
+        modelShader.setFloat("specularStrength", 0.8f);
+        renderModel(modelShader, backpackModel, showerModel);
 
-        // 2. render scene as normal using the generated depth/shadow map
+
+
+        // 2. render scene as normal using the generated depth/shadow map        
         shadow.Activate();
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
@@ -323,11 +365,13 @@ int main()
         shadow.setVec3("viewPos", camera.Position);
         shadow.setVec3("lightPos", lightPos);
         shadow.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, floorTexture);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, depthMap);
-        renderScene(shadow, backpackModel, planeVAO, beachBallModel, newBallPos, explosionShader, lightPos);
+        renderScene(shadow, backpackModel, planeVAO, beachBallModel, newBallPos, explosionShader, lightPos,littlePlaneVAO);
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 bb_model = glm::mat4(1.0f);
         bb_model = glm::translate(bb_model, glm::vec3(-2.2f, 4.0f, 0.0f)); // translate it down so it's at the center of the scene
@@ -340,6 +384,14 @@ int main()
         glm::vec3 Pos5 = glm::vec3(1.0f, 1.0f, 1.0f);
         glm::vec4 position_of_first_ball =  model * glm::vec4(Pos5, 1.0);
         glm::vec4 position_of_second_ball = bb_model * glm::vec4(Pos5, 1.0);
+
+        // grass
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBindTexture(GL_TEXTURE_2D, grassTexture);
+        littlePlaneVAO.Bind();
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
         // stars
         glm::vec3 StarPosition_one = glm::vec3(-3.0f, 3.0f, 3.0f);
         star_one->draw(explosionShader, camera.Position , StarPosition_one, lightPos, projection5, view5);
@@ -409,9 +461,7 @@ int main()
         rainShader.setMat4("viewPart", viewRain); 
         rainShader.setFloatReal("scalePart",  0.015f); 
         rainShader.setVec4("colorPart", colRain);
-        rainShader.setMat4("modelPart", modelRain);
-        //renderCubemap(CubemapShader, cubeMapVAO, cubemapTexture);
-        
+        rainShader.setMat4("modelPart", modelRain);        
 
 
         glfwSwapBuffers(window);
@@ -473,7 +523,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 }
 
 // renders the 3D scene
-void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &beachBallModel, glm::vec3 newBallPos, Shader &explosionShader, glm::vec3 lightPos)
+void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &beachBallModel, glm::vec3 newBallPos, Shader &explosionShader, glm::vec3 lightPos,VAO &littlePlaneVAO)
 {
     // floor
     glm::mat4 model = glm::mat4(1.0f);
@@ -481,18 +531,9 @@ void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &bea
     planeVAO.Bind();
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
-    // backpack
-    // model = glm::mat4(1.0f);
-    // model = glm::scale(model, glm::vec3(0.200));
-    // // model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-    // shader.setMat4("model", model);
-    // backpackModel.Draw(shader);
-
     //BeachBall Model
     glm::mat4 trans5 = glm::mat4(1.0f);
     trans5 = glm::rotate(trans5, (float)glfwGetTime() * glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-    // model = glm::rotate(model, angle, glm::vec3(1.0f, 0.0f, 0.0f));
-    // model = glm::translate(model, glm::vec3(X, Y, Z)); // translate it down so it's at the center of the scene
     model = glm::mat4(1.0f);
     model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
     model = glm::translate(model, newBallPos);
@@ -500,6 +541,22 @@ void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &bea
     glUniformMatrix4fv(transformLocball, 1, GL_FALSE, glm::value_ptr(trans5));
     shader.setMat4("model", model);
     beachBallModel.Draw(shader);
+}
+
+// Renders the 3D models
+void renderModel(Shader &shader, Model &backpackModel, Model &showerModel)
+{
+    //backpack
+    glm::mat4 model = glm::mat4(1.0f);
+    shader.setMat4("model", model);
+    model = glm::mat4(1.0f);
+    model = glm::scale(model, glm::vec3(0.200));
+    model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+    shader.setMat4("model", model);
+    backpackModel.Draw(shader);
+    //shower
+    model = glm::translate(model, glm::vec3(2.0f, 2.0f, 0.0f));
+    showerModel.Draw(shader);
 }
 
 
