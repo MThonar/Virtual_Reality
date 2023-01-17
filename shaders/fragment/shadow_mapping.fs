@@ -12,6 +12,7 @@ uniform float ambientStrength;
 uniform sampler2D diffuseTexture;
 uniform sampler2D shadowMap;
 
+uniform vec3 colorFinal;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 
@@ -60,5 +61,5 @@ void main()
     float shadow = ShadowCalculation(fs_in.FragPosLightSpace);                      
     vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
     
-    FragColor = vec4(lighting, 1.0);
+    FragColor = vec4(lighting, 1.0) * vec4(colorFinal, 1.0);
 }

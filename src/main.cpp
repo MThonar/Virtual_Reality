@@ -30,8 +30,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 void renderModel(Shader &shader, Model &backpackModel, Model &showerModel);
-void renderSceneDepth(Shader &shader, VAO &planeVAO, Model &beachBallModel, glm::vec3 newBallPos);
-void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &beachBallModel, glm::vec3 newBallPos, Model &showerModel, Model &sunModel, glm::vec3 ligthPos);
+void renderSceneDepth(Shader &shader, VAO &planeVAO, Model &beachBallModel, glm::vec3 newBallPos, Model &cloudModel, glm::vec3 cloudPosition);
+void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &beachBallModel, glm::vec3 newBallPos, Model &showerModel, Model &sunModel, glm::vec3 ligthPos, Model &cloudModel, glm::vec3 cloudPosition);
 void renderCubemap(Shader &cubemapShader, VAO &cubemapVAO, unsigned int &cubemapTexture);
 unsigned int loadTexture(const char *path);
 unsigned int loadCubemap(vector<std::string> faces);
@@ -132,6 +132,7 @@ int main()
     Model backpackModel("../object/backpack/backpack.obj");
     Model showerModel("../object/shower/shower.obj");
     Model starModel("../object/star/star.obj");
+    Model cloudModel("../object/cloud/CloudModel.obj");
     
     // build and compile textures
     Texture textureWater("../image/dropWaterTexture.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
@@ -273,11 +274,11 @@ int main()
         // Constant 
         glm::mat4 projectionX = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view3D = camera.GetViewMatrix();
-        glm::vec3 lightPos(9.0f, 0.0f, -15.0f);
+        glm::vec3 lightPos(0.0f, 10.0f, -15.0f);
         glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
         lightPos.x = cos(glfwGetTime()/5.0) * 10.0f;
         // lightPos.z = cos(glfwGetTime()) * 2.0f;
-        lightPos.y = sin(glfwGetTime()/5.0) * 10.0f;
+        //lightPos.y = sin(glfwGetTime()/5.0) * 10.0f;
 
         float time = (float)glfwGetTime();
         if(glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS){
@@ -299,6 +300,7 @@ int main()
             X += 0.03f;
         }
         glm::vec3 newBallPos = glm::vec3 (X,Y,Z);
+        glm::vec3 cloudPosition = glm::vec3(3.0f, 1.0f, 3.0f);
 
         // 1. render depth of scene to texture (from light's perspective)
         glm::mat4 lightProjection, lightView;
@@ -317,7 +319,7 @@ int main()
         glClear(GL_DEPTH_BUFFER_BIT);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, floorTexture);
-        renderSceneDepth(simpleDepthShader, planeVAO, beachBallModel, newBallPos);
+        renderSceneDepth(simpleDepthShader, planeVAO, beachBallModel, newBallPos, cloudModel, cloudPosition);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         // reset viewport
@@ -355,7 +357,7 @@ int main()
         glBindTexture(GL_TEXTURE_2D, floorTexture);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, depthMap);
-        renderScene(shadow, backpackModel, planeVAO, beachBallModel, newBallPos, showerModel, sunModel, lightPos);
+        renderScene(shadow, backpackModel, planeVAO, beachBallModel, newBallPos, showerModel, sunModel, lightPos, cloudModel, cloudPosition);
 
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 bb_model = glm::mat4(1.0f);
@@ -429,13 +431,13 @@ int main()
         particleBall->Draw(); 
     
         // RAIN
-        glm::vec3 cloudPosition = glm::vec3(3.0f, 1.0f, 3.0f); // CHANGE THIS WITH THE SHOWER
+        glm::vec3 rainPosition = cloudPosition + glm::vec3(0.2, -0.4, 0.0);
         glActiveTexture(GL_TEXTURE0);
         textureWater.Bind();
         glActiveTexture(GL_TEXTURE1);
         textureWater.Bind();
         rainShader.Activate();
-        rain->Update(deltaTime, 300, glm::vec3(0.2f, -0.7f, 0.0f), cloudPosition, 0.0f);
+        rain->Update(deltaTime, 300, glm::vec3(0.2f, -0.7f, 0.0f), rainPosition, 0.0f);
         rain->Draw(); 
         glm::mat4 projectionRain = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 viewRain = camera.GetViewMatrix();
@@ -506,7 +508,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 }
 
 // renders the 3D scene
-void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &beachBallModel, glm::vec3 newBallPos, Model &showerModel, Model &sunModel, glm::vec3 lightPos)
+void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &beachBallModel, glm::vec3 newBallPos, Model &showerModel, Model &sunModel, glm::vec3 lightPos, Model &cloudModel, glm::vec3 cloudPosition)
 {
     if (lightPos.y > 4.0f)
     {
@@ -521,6 +523,8 @@ void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &bea
         shader.setFloatReal("ambientStrength", 0.2f);
 
     }
+    glm::vec3 colorNeutral = glm::vec3(1.0, 1.0, 1.0);
+    shader.setVec3("colorFinal", colorNeutral);
     // floor
     glm::mat4 model = glm::mat4(1.0f);
     shader.setMat4("model", model);
@@ -550,7 +554,16 @@ void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &bea
     shader.setMat4("model", model);
     showerModel.Draw(shader);
 
+    // cloud
+    glm::vec3 colorCloud = glm::vec3(2.5, 2.5, 2.5);
+    shader.setVec3("colorFinal", colorCloud);
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, cloudPosition);
+    shader.setMat4("model", model);
+    cloudModel.Draw(shader);
+
     // sun
+    shader.setVec3("colorFinal", colorNeutral);
     model = glm::mat4(1.0f);
     model = glm::translate(model, lightPos);
     shader.setFloatReal("ambientStrength", 4.0f);
@@ -559,7 +572,7 @@ void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &bea
 }
 
 // renders the 3D scene
-void renderSceneDepth(Shader &shader, VAO &planeVAO, Model &beachBallModel, glm::vec3 newBallPos)
+void renderSceneDepth(Shader &shader, VAO &planeVAO, Model &beachBallModel, glm::vec3 newBallPos, Model &cloudModel, glm::vec3 cloudPosition)
 {
     // floor
     glm::mat4 model = glm::mat4(1.0f);
@@ -578,10 +591,12 @@ void renderSceneDepth(Shader &shader, VAO &planeVAO, Model &beachBallModel, glm:
     shader.setMat4("model", model);
     beachBallModel.Draw(shader);
 
-    // backpack
-    // model = glm::mat4(1.0f);
-    // shader.setMat4("model", model);
-    // backpackModel.Draw(shader);
+    // cloud
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, cloudPosition);
+    shader.setMat4("model", model);
+    cloudModel.Draw(shader);
+    
 }
 
 // Renders the 3D models
