@@ -59,6 +59,205 @@ StarGenerator *star_four;
 StarGenerator *star_five;
 StarGenerator *star_six;
 
+unsigned int quadVAO = 0;
+unsigned int quadVBO;
+void renderQuad()
+{
+    if (quadVAO == 0)
+    {
+        // positions
+        glm::vec3 pos1(-10.0f,  -0.5f, 10.0f);
+        glm::vec3 pos2(-10.0f, -0.5f, -10.0f);
+        glm::vec3 pos3( 10.0f, -0.5f, -10.0f);
+        glm::vec3 pos4( 10.0f,  -0.5f, 10.0f);
+        // texture coordinates
+        glm::vec2 uv1(0.0f, 10.0f);
+        glm::vec2 uv2(0.0f, 0.0f);
+        glm::vec2 uv3(10.0f, 0.0f);  
+        glm::vec2 uv4(10.0f, 10.0f);
+        // normal vector
+        glm::vec3 nm(0.0f, 1.0f, 0.0f);
+
+        // calculate tangent/bitangent vectors of both triangles
+        glm::vec3 tangent1, bitangent1;
+        glm::vec3 tangent2, bitangent2;
+        // triangle 1
+        // ----------
+        glm::vec3 edge1 = pos2 - pos1;
+        glm::vec3 edge2 = pos3 - pos1;
+        glm::vec2 deltaUV1 = uv2 - uv1;
+        glm::vec2 deltaUV2 = uv3 - uv1;
+
+        float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+        tangent1.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+        tangent1.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+        tangent1.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+        bitangent1.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+        bitangent1.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+        bitangent1.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+
+        // triangle 2
+        // ----------
+        edge1 = pos3 - pos1;
+        edge2 = pos4 - pos1;
+        deltaUV1 = uv3 - uv1;
+        deltaUV2 = uv4 - uv1;
+
+        f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+        tangent2.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+        tangent2.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+        tangent2.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+
+        bitangent2.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+        bitangent2.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+        bitangent2.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+        // float quadVertices[] = {
+        //     // positions            // normal         // texcoords  // tangent                          // bitangent
+        //     pos2.x, pos2.y, pos2.z, nm.x, nm.y, nm.z, uv2.x, uv2.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,nm.x, nm.y, nm.z,
+        //     pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,nm.x, nm.y, nm.z,
+        //     pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,nm.x, nm.y, nm.z,
+
+        //     pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,nm.x, nm.y, nm.z,
+        //     pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,nm.x, nm.y, nm.z,
+        //     pos4.x, pos4.y, pos4.z, nm.x, nm.y, nm.z, uv4.x, uv4.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,nm.x, nm.y, nm.z,
+        // };
+
+         float quadVertices[] = {
+                // positions            // normal         // texcoords  // tangent                          // bitangent                               // normal_bump
+                -10.0f, -0.5f,  10.0f,  0.0f, 1.0f, 0.0f,  0.0f,  10.0f, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,nm.x, nm.y, nm.z,
+                -10.0f, -0.5f,  -10.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,nm.x, nm.y, nm.z,
+                10.0f, -0.5f, -10.0f,  0.0f, 1.0f, 0.0f,   10.0f, 0.0f, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,nm.x, nm.y, nm.z,
+            //     pos1.x, pos1.y, pos1.z
+                -10.0f, -0.5f,  10.0f,  0.0f, 1.0f, 0.0f,  0.0f,  0.0f, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,nm.x, nm.y, nm.z,
+                10.0f, -0.5f, -10.0f,  0.0f, 1.0f, 0.0f,   10.0f, 0.0f, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,nm.x, nm.y, nm.z,
+                10.0f, -0.5f, 10.0f,  0.0f, 1.0f, 0.0f,  10.0f, 10.0f, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z, nm.x, nm.y, nm.z,
+        };
+         
+        // configure plane VAO
+        glGenVertexArrays(1, &quadVAO);
+        glGenBuffers(1, &quadVBO);
+        glBindVertexArray(quadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 17 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 17 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 17 * sizeof(float), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 17 * sizeof(float), (void*)(8 * sizeof(float)));
+        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 17 * sizeof(float), (void*)(11 * sizeof(float)));
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, 17 * sizeof(float), (void*)(14 * sizeof(float)));
+    }
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+}
+
+
+unsigned int quadVAOW = 0;
+unsigned int quadVBOW;
+void renderQuad_water()
+{
+    if (quadVAOW == 0)
+    {
+        // positions
+        // positions
+        glm::vec3 pos1(-200.0f,  -1.5f, 200.0f);
+        glm::vec3 pos2(-200.0f, -1.5f, -200.0f);
+        glm::vec3 pos3( 200.0f, -1.5f, -200.0f);
+        glm::vec3 pos4( 200.0f,  -1.5f, 200.0f);
+        // texture coordinates
+        glm::vec2 uv1(0.0f, 200.0f);
+        glm::vec2 uv2(0.0f, 0.0f);
+        glm::vec2 uv3(200.0f, 0.0f);  
+        glm::vec2 uv4(200.0f, 200.0f);
+        // normal vector
+        glm::vec3 nm(0.0f, 1.0f, 0.0f);
+
+        // calculate tangent/bitangent vectors of both triangles
+        glm::vec3 tangent1, bitangent1;
+        glm::vec3 tangent2, bitangent2;
+        // triangle 1
+        // ----------
+        glm::vec3 edge1 = pos2 - pos1;
+        glm::vec3 edge2 = pos3 - pos1;
+        glm::vec2 deltaUV1 = uv2 - uv1;
+        glm::vec2 deltaUV2 = uv3 - uv1;
+
+        float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+        tangent1.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+        tangent1.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+        tangent1.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+        bitangent1.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+        bitangent1.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+        bitangent1.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+
+        // triangle 2
+        // ----------
+        edge1 = pos3 - pos1;
+        edge2 = pos4 - pos1;
+        deltaUV1 = uv3 - uv1;
+        deltaUV2 = uv4 - uv1;
+
+        f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+        tangent2.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+        tangent2.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+        tangent2.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+
+        bitangent2.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+        bitangent2.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+        bitangent2.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+     
+        float quadVertices[] = {
+                // positions            // normal         // texcoords  // tangent                          // bitangent                               // normal_bump
+                -200.0f, -1.5f,  200.0f,  0.0f, 1.0f, 0.0f,  0.0f,  200.0f, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,nm.x, nm.y, nm.z,
+                -200.0f, -1.5f,  -200.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,nm.x, nm.y, nm.z,
+                200.0f, -1.5f, 200.0f,  0.0f, 1.0f, 0.0f,   200.0f, 0.0f, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,nm.x, nm.y, nm.z,
+            //     pos1.x, pos1.y, pos1.z
+                -200.0f, -1.5f,  200.0f,  0.0f, 1.0f, 0.0f,  0.0f,  0.0f, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,nm.x, nm.y, nm.z,
+                200.0f, -1.5f, -200.0f,  0.0f, 1.0f, 0.0f,   200.0f, 0.0f, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,nm.x, nm.y, nm.z,
+                200.0f, -1.5f, 200.0f,  0.0f, 1.0f, 0.0f,  200.0f, 200.0f, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z, nm.x, nm.y, nm.z,
+        };
+        
+
+         
+        // configure plane VAO
+        glGenVertexArrays(1, &quadVAOW);
+        glGenBuffers(1, &quadVBOW);
+        glBindVertexArray(quadVAOW);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBOW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 17 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 17 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 17 * sizeof(float), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 17 * sizeof(float), (void*)(8 * sizeof(float)));
+        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 17 * sizeof(float), (void*)(11 * sizeof(float)));
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, 17 * sizeof(float), (void*)(14 * sizeof(float)));
+    }
+    glBindVertexArray(quadVAOW);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+}
+
+
 bool CheckCollision(glm::vec4 Position_1, glm::vec4 Position_2, float radius_1, float radius_2) // AABB - AABB collision
 {
     // collision x-axis?
@@ -117,6 +316,7 @@ int main()
     
 
     // build and compile shaders
+    Shader lightShader("../shaders/vertex/3D.vs", "../shaders/fragment/light.fs"); 
     Shader CubemapShader("../shaders/vertex/cubemap.vs", "../shaders/fragment/cubemap.fs"); 
     Shader rainShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
     Shader particleShader("../shaders/vertex/particles.vs", "../shaders/fragment/particles.fs");
@@ -124,6 +324,8 @@ int main()
     Shader shadow("../shaders/vertex/shadow_mapping.vs", "../shaders/fragment/shadow_mapping.fs");
     Shader simpleDepthShader("../shaders/vertex/shadow_mapping_depth.vs", "../shaders/fragment/shadow_mapping_depth.fs");
     Shader modelShader("../shaders/vertex/model_loading.vs", "../shaders/fragment/model_loading.fs");
+    Shader shaderRender("../shaders/vertex/normal_mapping.vs", "../shaders/fragment/normal_mapping.fs");
+    // Shader shadow_v2("../shaders/vertex/shadow_map_v2.vs", "../shaders/fragment/shadow_map_v2.fs");
 
     // build and compile models
     Model beachBallModel("../object/beachball/beachball.obj");
@@ -138,7 +340,11 @@ int main()
     Texture textureWater("../image/dropWaterTexture.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     Texture textureFire("../image/fireTexture.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     Texture textureSand("../image/grass.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-
+    unsigned int diffuseMap = loadTexture("../image/sand.jpg");
+    unsigned int normalMap  = loadTexture("../image/33991-sand-normal.png");
+    unsigned int textureNormal  = loadTexture("../object/backpack/normal.png");
+    unsigned int diffuseWater  = loadTexture("../image/ocean_diff.jpg");
+    unsigned int normalMapWater  = loadTexture("../image/ocean.jpg");
     rain = new ParticleGenerator(rainShader, 200, glm::vec3(0.0f,0.4f,0.0f));
     particleBall = new ParticleGenerator(particleShader, 200, glm::vec3(0.0f,0.0f,0.0f));
 
@@ -148,6 +354,18 @@ int main()
     star_four = new StarGenerator(0.0f);
     star_five = new StarGenerator(0.0f);
     star_six = new StarGenerator(0.0f);
+
+    VAO LightBoxVAO;
+    VBO LightBoxVBO(cubeVertices, sizeof(cubeVertices));
+    // Light Box
+    LightBoxVAO.Bind();
+    LightBoxVAO.LinkAttrib(LightBoxVBO, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0);
+	LightBoxVAO.LinkAttrib(LightBoxVBO, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float)));
+    LightBoxVAO.LinkAttrib(LightBoxVBO, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float)));
+    LightBoxVAO.LinkAttrib(LightBoxVBO, 3, 3, GL_FLOAT, 11 * sizeof(float), (void*)(8 * sizeof(float)));
+    LightBoxVAO.Unbind();
+	LightBoxVBO.Unbind();
+
 
     VAO cubeMapVAO;
     VBO cubeMapVBO(cubeMapVertices, sizeof(cubeMapVertices));
@@ -178,32 +396,27 @@ int main()
     textureFire.texUnit(particleShader, "texturePart1", 0);
     textureFire.texUnit(particleShader, "texturePart2", 1);
 
+    shaderRender.Activate();
+    shaderRender.setInt("diffuseMap", 0);
+    shaderRender.setInt("normalMap", 1);
+
     // Plane shader
     unsigned int floorTexture = loadTexture("../image/sand.jpg");
     unsigned int grassTexture = loadTexture("../image/grass.png");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
+    // float planeVertices[] = {
+    //     // positions            // normals         // texcoords
     float planeVertices[] = {
         // positions            // normals         // texcoords
-         200.0f, -0.5f,  200.0f,  0.0f, 1.0f, 0.0f,  200.0f,  0.0f,
-        -200.0f, -0.5f,  200.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
-        -200.0f, -0.5f, -200.0f,  0.0f, 1.0f, 0.0f,   0.0f, 200.0f,
+         20.0f, -0.5f,  20.0f,  0.0f, 1.0f, 0.0f,  20.0f,  0.0f,
+        -20.0f, -0.5f,  20.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
+        -20.0f, -0.5f, -20.0f,  0.0f, 1.0f, 0.0f,   0.0f, 20.0f,
 
-         200.0f, -0.5f,  200.0f,  0.0f, 1.0f, 0.0f,  200.0f,  0.0f,
-        -200.0f, -0.5f, -200.0f,  0.0f, 1.0f, 0.0f,   0.0f, 200.0f,
-         200.0f, -0.5f, -200.0f,  0.0f, 1.0f, 0.0f,  200.0f, 200.0f
+         20.0f, -0.5f,  20.0f,  0.0f, 1.0f, 0.0f,  20.0f,  0.0f,
+        -20.0f, -0.5f, -20.0f,  0.0f, 1.0f, 0.0f,   0.0f, 200.0f,
+         20.0f, -0.5f, -20.0f,  0.0f, 1.0f, 0.0f,  20.0f, 200.0f
     };
-
-    // float littlePlaneVertices[] = {
-    //     // positions            // normals         // texcoords
-    //      0.0f, 0.5f,   0.0f,   0.0f, 1.0f, 0.0f,  1.0f,  1.0f,
-    //      0.0f, -0.5f,  0.0f,   0.0f, 1.0f, 0.0f,   1.0f,  0.0f,
-    //      1.0f, -0.5f,  0.0f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
-
-    //      0.0f, 0.5f,  0.0f,    0.0f, 1.0f, 0.0f,  1.0f,  1.0f,
-    //      1.0f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
-    //      1.0f, 0.5f,  0.0f,    0.0f, 1.0f, 0.0f,  0.0f, 1.0f
-    // };
 
     VAO planeVAO;
     VBO planeVBO(planeVertices, sizeof(planeVertices));
@@ -248,14 +461,23 @@ int main()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
-    // shader configuration
+    // // shader configuration
+    // shadow_v2.Activate();
+    // shadow_v2.setInt("diffuseTexture", 0);
+    // shadow_v2.setInt("shadowMap", 1);
+    // shadow_v2.setInt("normalMap", 2);
+
     shadow.Activate();
     shadow.setInt("diffuseTexture", 0);
     shadow.setInt("shadowMap", 1);
 
     modelShader.Activate();
     modelShader.setInt("textureNormal", 0);
-    
+
+    shaderRender.Activate();
+    shaderRender.setInt("diffuseMap", 0);
+    shaderRender.setInt("normalMap", 1);
+
     float angle = glm::radians(00.0f);
     float X = 0.0f;
     float Y = 0.0f;
@@ -278,9 +500,10 @@ int main()
         glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
         lightPos.x = cos(glfwGetTime()/5.0) * 10.0f;
         // lightPos.z = cos(glfwGetTime()) * 2.0f;
-        //lightPos.y = sin(glfwGetTime()/5.0) * 10.0f;
+        // lightPos.y = sin(glfwGetTime()/5.0) * 10.0f;
 
         float time = (float)glfwGetTime();
+        glm::vec3 previous_position = glm::vec3(X, Y, Z);
         if(glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS){
             Z += 0.03f;
         }
@@ -354,11 +577,51 @@ int main()
         shadow.setVec3("lightPos", lightPos);
         shadow.setMat4("lightSpaceMatrix", lightSpaceMatrix);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, floorTexture);
+        glBindTexture(GL_TEXTURE_2D, diffuseMap);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, depthMap);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, normalMap);
         renderScene(shadow, backpackModel, planeVAO, beachBallModel, newBallPos, showerModel, sunModel, lightPos, cloudModel, cloudPosition);
+        
+        // shadow_v2.Activate();
+        // glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        // glm::mat4 view = camera.GetViewMatrix();
+        // shadow_v2.setMat4("projection", projection);
+        // shadow_v2.setMat4("view", view);
+        // // set light uniforms
+        // shadow_v2.setVec3("viewPos", camera.Position);
+        // shadow_v2.setVec3("lightPos", lightPos);
+        // shadow_v2.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+        // glActiveTexture(GL_TEXTURE0);
+        // glBindTexture(GL_TEXTURE_2D, diffuseMap);
+        // glActiveTexture(GL_TEXTURE1);
+        // glBindTexture(GL_TEXTURE_2D, depthMap);
+        // glActiveTexture(GL_TEXTURE2);
+        // glBindTexture(GL_TEXTURE_2D, normalMap);
+        // renderScene(shadow_v2, backpackModel, planeVAO, beachBallModel, newBallPos, showerModel, sunModel, lightPos, cloudModel, cloudPosition);
 
+
+        //  // Plane
+        glm::mat4 projectionRender = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 viewRender = camera.GetViewMatrix();
+        shaderRender.Activate();
+        shaderRender.setMat4("projection", projectionRender);
+        shaderRender.setMat4("view", viewRender);
+        glm::mat4 modelRender = glm::mat4(1.0f);
+        // modelRender = glm::rotate(modelRender, glm::radians( -90.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0))); // rotate the quad to show normal mapping from multiple directions
+        // modelRender = glm::rotate(modelRender, glm::radians((float)glfwGetTime() * -10.0f), glm::normalize(glm::vec3(0.0, 0.0, 1.0))); // rotate the quad to show normal mapping from multiple directions
+        modelRender = glm::translate(modelRender, glm::vec3(-0.0f, -0.0f, -3.0f));
+        shaderRender.setMat4("model", modelRender);
+        shaderRender.setVec3("viewPos", camera.Position);
+        shaderRender.setVec3("lightPos", lightPos);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuseWater);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, normalMapWater);
+        renderQuad_water();
+
+        
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 bb_model = glm::mat4(1.0f);
         bb_model = glm::translate(bb_model, glm::vec3(-2.2f, 4.0f, 0.0f)); // translate it down so it's at the center of the scene
@@ -416,7 +679,7 @@ int main()
         glActiveTexture(GL_TEXTURE1);
         textureFire.Bind();
         particleShader.Activate();
-        particleBall->Update(deltaTime, 300, glm::vec3(-1.0f, 1.0f, 0.0f), glm::vec3(X, Y, Z), angle);
+        particleBall->Update(deltaTime, 700, glm::vec3(-3.8f,0.3f,-1.1f), glm::vec3(X, Y, Z), previous_position);
         // particleBall->Update(deltaTime, 300, glm::vec3(-1.0f, 1.0f, 0.0f), glm::vec3(position_of_first_ball.x, position_of_first_ball.y, position_of_first_ball.z), angle);
         // particleBall->Update(deltaTime, 300, angle* glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(X, Y, Z));
         glm::mat4 projectionPart = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -425,7 +688,7 @@ int main()
         glm::mat4 modelPart = glm::mat4(1.0f);
         particleShader.setMat4("projectionPart", projectionPart);
         particleShader.setMat4("viewPart", viewPart); 
-        particleShader.setFloatReal("scalePart",  0.01f);       
+        particleShader.setFloatReal("scalePart",  0.05f);       
         particleShader.setVec4("colorPart", colPart);      
         particleShader.setMat4("modelPart", modelPart);
         particleBall->Draw(); 
@@ -437,7 +700,7 @@ int main()
         glActiveTexture(GL_TEXTURE1);
         textureWater.Bind();
         rainShader.Activate();
-        rain->Update(deltaTime, 300, glm::vec3(0.2f, -0.7f, 0.0f), rainPosition, 0.0f);
+        rain->Update(deltaTime, 300, glm::vec3(0.0f, -0.0f, 0.0f), rainPosition, glm::vec3(0.0f, -0.0f, 0.0f));
         rain->Draw(); 
         glm::mat4 projectionRain = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 viewRain = camera.GetViewMatrix();
@@ -451,11 +714,11 @@ int main()
 
         glfwSwapBuffers(window);
         glfwPollEvents();
-        //glfwSwapInterval(1);
+        // glfwSwapInterval(1);
     }
 
-    // LightBoxVAO.Delete();
-    // LightBoxVBO.Delete();
+    LightBoxVAO.Delete();
+    LightBoxVBO.Delete();
 
     glfwTerminate();
     return 0;
@@ -524,14 +787,21 @@ void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &bea
 
     }
     glm::vec3 colorNeutral = glm::vec3(1.0, 1.0, 1.0);
-    shader.setVec3("colorFinal", colorNeutral);
+    shader.setVec3("colorFinal", glm::vec3(1.0f, 1.0f, 0.0f));
     // floor
     glm::mat4 model = glm::mat4(1.0f);
     shader.setMat4("model", model);
     planeVAO.Bind();
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
+    //  glm::mat4 model = glm::mat4(1.0f);
+    // shader.setMat4("model", model);
+    // shader.setMat4("model", model);
+    // shader.setVec3("viewPos", camera.Position);
+    // renderQuad();
+
     // BeachBall Model
+    shader.setVec3("colorFinal", colorNeutral);
     glm::mat4 trans5 = glm::mat4(1.0f);
     trans5 = glm::rotate(trans5, (float)glfwGetTime() * glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
     model = glm::mat4(1.0f);
@@ -579,6 +849,12 @@ void renderSceneDepth(Shader &shader, VAO &planeVAO, Model &beachBallModel, glm:
     shader.setMat4("model", model);
     planeVAO.Bind();
     glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    // glm::mat4 model = glm::mat4(1.0f);
+    // shader.setMat4("model", model);
+    // shader.setMat4("model", model);
+    // shader.setVec3("viewPos", camera.Position);
+    // renderQuad();
 
     // BeachBall Model
     glm::mat4 trans5 = glm::mat4(1.0f);
