@@ -45,7 +45,7 @@ void StarGenerator::init(){
     this->stars.push_back(Star());
 }
 
-void StarGenerator::update(Shader explosionShader, glm::vec4 Position_1, glm::vec4 Position_3, float radius_1, float radius_2)
+void StarGenerator::update(Shader explosionShader, glm::vec4 Position_1, float radius_1, float radius_2)
     {   
         glm::vec3 PosStar = glm::vec3(1.0f, 1.0f, 1.0f);
         Star &s = this->stars[0];

@@ -32,7 +32,7 @@ public:
     StarGenerator(float timeExpl);
 
     void draw(Shader explosionShader, glm::vec3 camPosition, glm::vec3 StarPosition, glm::vec3 lightPos, glm::mat4 projection5, glm::mat4 view5);
-    void update(Shader explosionShader, glm::vec4 Position_1, glm::vec4  Position_3, float radius_1, float radius_2);
+    void update(Shader explosionShader, glm::vec4 Position_1, float radius_1, float radius_2);
 private: 
     std::vector<Star> stars;
     void init();
