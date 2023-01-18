@@ -38,8 +38,8 @@ unsigned int loadCubemap(vector<std::string> faces);
 void renderQuad();
 void renderQuad_water();
 
-const unsigned int SCR_WIDTH = 1920;
-const unsigned int SCR_HEIGHT = 1080;
+const unsigned int SCR_WIDTH = 1600;
+const unsigned int SCR_HEIGHT = 900;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
