@@ -38,8 +38,8 @@ unsigned int loadCubemap(vector<std::string> faces);
 void renderQuad();
 void renderQuad_water();
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -388,57 +388,57 @@ int main()
         glm::vec4 position_of_second_ball = bb_model * glm::vec4(Pos5, 1.0);
 
         // stars
-        glm::vec3 StarPosition_one = glm::vec3(-3.0f, 3.0f, 3.0f);
+        glm::vec3 StarPosition_one = glm::vec3(-3.0f, 3.0f, -3.0f);
         star_one->draw(explosionShader, camera.Position , StarPosition_one, lightPos, projection5, view5);
         star_one->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
         
-        glm::vec3 StarPosition_two = glm::vec3(3.0f, 3.0f, 4.0f);
+        glm::vec3 StarPosition_two = glm::vec3(3.0f, 3.0f, 3.0f);
         star_two->draw(explosionShader, camera.Position , StarPosition_two, lightPos, projection5, view5);
         star_two->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
 
-        glm::vec3 StarPosition_three = glm::vec3(3.0f, 3.0f, 3.0f);
+        glm::vec3 StarPosition_three = glm::vec3(-3.0f, 3.0f, 3.0f);
         star_three->draw(explosionShader, camera.Position , StarPosition_three, lightPos, projection5, view5);
         star_three->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
 
-        glm::vec3 StarPosition_four = glm::vec3(-3.0f, 3.0f, 3.0f);
+        glm::vec3 StarPosition_four = glm::vec3(3.0f, 3.0f, -3.0f);
         star_four->draw(explosionShader, camera.Position , StarPosition_four, lightPos, projection5, view5);
         star_four->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
 
-        glm::vec3 StarPosition_five = glm::vec3(0.0f, 3.0f, 3.0f);
+        glm::vec3 StarPosition_five = glm::vec3(3.0f, 3.0f, 0.0f);
         star_five->draw(explosionShader, camera.Position , StarPosition_five, lightPos, projection5, view5);
         star_five->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
 
-        glm::vec3 StarPosition_six = glm::vec3(4.0f, 3.0f, 1.0f);
+        glm::vec3 StarPosition_six = glm::vec3(-3.0f, 3.0f, 0.0f);
         star_six->draw(explosionShader, camera.Position , StarPosition_six, lightPos, projection5, view5);
         star_six->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
 
-        glm::vec3 StarPosition_7 = glm::vec3(5.0f, 2.0f, 6.0f);
+        glm::vec3 StarPosition_7 = glm::vec3(0.0f, 2.0f, 3.0f);
         star_7->draw(explosionShader, camera.Position , StarPosition_7, lightPos, projection5, view5);
         star_7->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
 
-        glm::vec3 StarPosition_8 = glm::vec3(5.0f, 1.0f, 5.0f);
+        glm::vec3 StarPosition_8 = glm::vec3(0.0f, 3.0f, -3.0f);
         star_8->draw(explosionShader, camera.Position , StarPosition_8, lightPos, projection5, view5);
         star_8->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
 
-        glm::vec3 StarPosition_9 = glm::vec3(-4.0f, 2.0f, 2.0f);
+        glm::vec3 StarPosition_9 = glm::vec3(4.0f, 3.0f, 4.0f);
         star_9->draw(explosionShader, camera.Position , StarPosition_9, lightPos, projection5, view5);
         star_9->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
 
-        glm::vec3 StarPosition_10 = glm::vec3(0.0f, 3.0f, 2.0f);
+        glm::vec3 StarPosition_10 = glm::vec3(0.0f, 3.0f, 4.0f);
         star_10->draw(explosionShader, camera.Position , StarPosition_10, lightPos, projection5, view5);
         star_10->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
 
-        glm::vec3 StarPosition_11 = glm::vec3(-3.0f, 1.0f, 1.0f);
+        glm::vec3 StarPosition_11 = glm::vec3(4.0f, 3.0f, 0.0f);
         star_11->draw(explosionShader, camera.Position , StarPosition_11, lightPos, projection5, view5);
         star_11->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
@@ -448,17 +448,17 @@ int main()
         star_12->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
 
-        glm::vec3 StarPosition_13 = glm::vec3(-2.0f, 2.0f, 5.0f);
+        glm::vec3 StarPosition_13 = glm::vec3(-2.0f, 3.0f, 4.0f);
         star_13->draw(explosionShader, camera.Position , StarPosition_13, lightPos, projection5, view5);
         star_13->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
 
-        glm::vec3 StarPosition_14 = glm::vec3(-4.0f, 2.0f, 2.0f);
+        glm::vec3 StarPosition_14 = glm::vec3(0.0f, 4.0f, 0.0f);
         star_14->draw(explosionShader, camera.Position , StarPosition_14, lightPos, projection5, view5);
         star_14->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
 
-        glm::vec3 StarPosition_15 = glm::vec3(-5.0f, 3.0f, 1.0f);
+        glm::vec3 StarPosition_15 = glm::vec3(-4.0f, 3.0f, 3.0f);
         star_15->draw(explosionShader, camera.Position , StarPosition_15, lightPos, projection5, view5);
         star_15->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
