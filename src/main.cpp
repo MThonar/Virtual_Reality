@@ -544,7 +544,7 @@ int main()
             X += 0.03f;
         }
         glm::vec3 newBallPos = glm::vec3 (X,Y,Z);
-        glm::vec3 cloudPosition = glm::vec3(10.0f, 10.0f, 10.0f);
+        glm::vec3 cloudPosition = glm::vec3(5.0f,5.0f, 5.0f);
 
         // 1. render depth of scene to texture (from light's perspective)
         glm::mat4 lightProjection, lightView;
@@ -887,14 +887,14 @@ void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &bea
     glm::vec3 colorCloud = glm::vec3(2.5, 2.5, 2.5);
     shader.setVec3("colorFinal", colorCloud);
 
-    float f = 5.0;
-    float j = 5.0;
+    float f = 10.0;
+    float j = 10.0;
 
     for(;f>0;f-=1.0){
         for(;j>0;j-=1.0){
     // for(unsigned int i=1;i<=10;i++){  
             model = glm::mat4(1.0f);
-            model = glm::translate(model, cloudPosition+glm::vec3(f, j, 0.0f));
+            model = glm::translate(model, cloudPosition+glm::vec3(f, 0.0f, j));
             shader.setMat4("model", model);
             cloudModel.Draw(shader);
         }
@@ -935,13 +935,14 @@ void renderSceneDepth(Shader &shader, VAO &planeVAO, Model &beachBallModel, glm:
     shader.setMat4("model", model);
     beachBallModel.Draw(shader);
 
-    float f = 5.0;
-    float j = 5.0;
+    float f = 20.0;
+    float j = 20.0;
 
-    for(;f>0;f-=1.0){
-        for(;j>0;j-=1.0){
+    for(;f>0;f-=2.0){
+        for(;j>0;j-=2.0){
+    // for(unsigned int i=1;i<=10;i++){  
             model = glm::mat4(1.0f);
-            model = glm::translate(model, cloudPosition+glm::vec3(f, j, 0.0f));
+            model = glm::translate(model, cloudPosition+glm::vec3(f, 0.0f, j));
             shader.setMat4("model", model);
             cloudModel.Draw(shader);
         }

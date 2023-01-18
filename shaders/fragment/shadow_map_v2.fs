@@ -19,6 +19,7 @@ uniform float ambientStrength;
 
 uniform vec3 lightPos;
 uniform vec3 viewPos;
+uniform vec3 colorFinal;
 
 float ShadowCalculation(vec4 fragPosLightSpace)
 {
@@ -70,7 +71,7 @@ void main()
     float shadow = ShadowCalculation(fs_in.FragPosLightSpace);  
     vec3 specular = vec3(0.2) * spec;
     if (shadow == 0.0f) {
-        FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f)*vec4(ambient +  diffuse + specular, 1.0);
+        FragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f)*vec4(ambient +  diffuse + specular, 1.0) * vec4(colorFinal, 1.0);
 
     }
     else{
