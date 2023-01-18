@@ -886,25 +886,19 @@ void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &bea
     // cloud
     glm::vec3 colorCloud = glm::vec3(2.5, 2.5, 2.5);
     shader.setVec3("colorFinal", colorCloud);
-    // glm::vec3 cloudPosition_list[] = {
-    //     glm::vec3( 0.0f,  0.0f,  0.0f), 
-    //     glm::vec3( 1.0f, 1.0f, 0.0f), 
-    //     glm::vec3(1.0f, 2.0f,  0.0f),  
-    //     glm::vec3(1.0f, 3.0f,  0.0f),  
-    //     glm::vec3(2.0f, 1.0f,  0.0f),  
-    //     glm::vec3(2.0f,  2.0f,  0.0f),  
-    //     glm::vec3( 2.0f, 3.0f,  0.0f),  
-    //     glm::vec3( 2.0f,  1.0f,  0.0f), 
-    //     glm::vec3( 3.0f,  2.0f,  0.0f), 
-    //     glm::vec3(3.0f,  3.0f,  0.0f) ,
-    //     glm::vec3(3.0f, 1.0f,  0.0f) 
-    // };
+
+    float f = 5.0;
+    float j = 5.0;
+
+    for(;f>0;f-=1.0){
+        for(;j>0;j-=1.0){
     // for(unsigned int i=1;i<=10;i++){  
-    //         model = glm::mat4(1.0f);
-    //         model = glm::translate(model, cloudPosition+cloudPosition_list[i]);
-    //         shader.setMat4("model", model);
-    //         cloudModel.Draw(shader);
-    // }
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, cloudPosition+glm::vec3(f, j, 0.0f));
+            shader.setMat4("model", model);
+            cloudModel.Draw(shader);
+        }
+    }
 
     // sun
     shader.setVec3("colorFinal", colorNeutral);
@@ -941,26 +935,17 @@ void renderSceneDepth(Shader &shader, VAO &planeVAO, Model &beachBallModel, glm:
     shader.setMat4("model", model);
     beachBallModel.Draw(shader);
 
-    // cloud
-    // glm::vec3 cloudPosition_list[] = {
-    //     glm::vec3( 0.0f,  0.0f,  0.0f), 
-    //     glm::vec3( 1.0f, 1.0f, 0.0f), 
-    //     glm::vec3(1.0f, 2.0f,  0.0f),  
-    //     glm::vec3(1.0f, 3.0f,  0.0f),  
-    //     glm::vec3(2.0f, 1.0f,  0.0f),  
-    //     glm::vec3(2.0f,  2.0f,  0.0f),  
-    //     glm::vec3( 2.0f, 3.0f,  0.0f),  
-    //     glm::vec3( 2.0f,  1.0f,  0.0f), 
-    //     glm::vec3( 3.0f,  2.0f,  0.0f), 
-    //     glm::vec3(3.0f,  3.0f,  0.0f) ,
-    //     glm::vec3(3.0f, 1.0f,  0.0f) 
-    // };
-    // for(unsigned int i=1;i<=10;i++){  
-    //         model = glm::mat4(1.0f);
-    //         model = glm::translate(model, cloudPosition+cloudPosition_list[i]);
-    //         shader.setMat4("model", model);
-    //         cloudModel.Draw(shader);
-    // }
+    float f = 5.0;
+    float j = 5.0;
+
+    for(;f>0;f-=1.0){
+        for(;j>0;j-=1.0){
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, cloudPosition+glm::vec3(f, j, 0.0f));
+            shader.setMat4("model", model);
+            cloudModel.Draw(shader);
+        }
+    }
     
     
 }
