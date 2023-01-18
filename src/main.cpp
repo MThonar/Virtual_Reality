@@ -58,6 +58,15 @@ StarGenerator *star_three;
 StarGenerator *star_four;
 StarGenerator *star_five;
 StarGenerator *star_six;
+StarGenerator *star_7;
+StarGenerator *star_8;
+StarGenerator *star_9;
+StarGenerator *star_10;
+StarGenerator *star_11;
+StarGenerator *star_12;
+StarGenerator *star_13;
+StarGenerator *star_15;
+StarGenerator *star_14;
 
 unsigned int quadVAO = 0;
 unsigned int quadVBO;
@@ -170,10 +179,10 @@ void renderQuad_water()
     {
         // positions
         // positions
-        glm::vec3 pos1(-200.0f,  -1.5f, 200.0f);
-        glm::vec3 pos2(-200.0f, -1.5f, -200.0f);
-        glm::vec3 pos3( 200.0f, -1.5f, -200.0f);
-        glm::vec3 pos4( 200.0f,  -1.5f, 200.0f);
+        glm::vec3 pos1(-200.0f,  -0.7f, 200.0f);
+        glm::vec3 pos2(-200.0f, -0.7f, -200.0f);
+        glm::vec3 pos3( 200.0f, -0.7f, -200.0f);
+        glm::vec3 pos4( 200.0f,  -0.7f, 200.0f);
         // texture coordinates
         glm::vec2 uv1(0.0f, 200.0f);
         glm::vec2 uv2(0.0f, 0.0f);
@@ -222,13 +231,13 @@ void renderQuad_water()
      
         float quadVertices[] = {
                 // positions            // normal         // texcoords  // tangent                          // bitangent                               // normal_bump
-                -200.0f, -1.5f,  200.0f,  0.0f, 1.0f, 0.0f,  0.0f,  200.0f, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,nm.x, nm.y, nm.z,
-                -200.0f, -1.5f,  -200.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,nm.x, nm.y, nm.z,
-                200.0f, -1.5f, 200.0f,  0.0f, 1.0f, 0.0f,   200.0f, 0.0f, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,nm.x, nm.y, nm.z,
+                -200.0f, -0.7f,  200.0f,  0.0f, 1.0f, 0.0f,  0.0f,  200.0f, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,nm.x, nm.y, nm.z,
+                -200.0f, -0.7f,  -200.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,nm.x, nm.y, nm.z,
+                200.0f, -0.7f, -200.0f,  0.0f, 1.0f, 0.0f,   200.0f, 0.0f, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,nm.x, nm.y, nm.z,
             //     pos1.x, pos1.y, pos1.z
-                -200.0f, -1.5f,  200.0f,  0.0f, 1.0f, 0.0f,  0.0f,  0.0f, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,nm.x, nm.y, nm.z,
-                200.0f, -1.5f, -200.0f,  0.0f, 1.0f, 0.0f,   200.0f, 0.0f, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,nm.x, nm.y, nm.z,
-                200.0f, -1.5f, 200.0f,  0.0f, 1.0f, 0.0f,  200.0f, 200.0f, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z, nm.x, nm.y, nm.z,
+                -200.0f, -0.7f,  200.0f,  0.0f, 1.0f, 0.0f,  0.0f,  0.0f, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,nm.x, nm.y, nm.z,
+                200.0f, -0.7f, -200.0f,  0.0f, 1.0f, 0.0f,   200.0f, 0.0f, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,nm.x, nm.y, nm.z,
+                200.0f, -0.7f, 200.0f,  0.0f, 1.0f, 0.0f,  200.0f, 200.0f, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z, nm.x, nm.y, nm.z,
         };
         
 
@@ -325,7 +334,7 @@ int main()
     Shader simpleDepthShader("../shaders/vertex/shadow_mapping_depth.vs", "../shaders/fragment/shadow_mapping_depth.fs");
     Shader modelShader("../shaders/vertex/model_loading.vs", "../shaders/fragment/model_loading.fs");
     Shader shaderRender("../shaders/vertex/normal_mapping.vs", "../shaders/fragment/normal_mapping.fs");
-    // Shader shadow_v2("../shaders/vertex/shadow_map_v2.vs", "../shaders/fragment/shadow_map_v2.fs");
+    Shader shadow_v2("../shaders/vertex/shadow_map_v2.vs", "../shaders/fragment/shadow_map_v2.fs");
 
     // build and compile models
     Model beachBallModel("../object/beachball/beachball.obj");
@@ -354,6 +363,18 @@ int main()
     star_four = new StarGenerator(0.0f);
     star_five = new StarGenerator(0.0f);
     star_six = new StarGenerator(0.0f);
+    star_7 = new StarGenerator(0.0f);
+    star_8 = new StarGenerator(0.0f);
+
+    star_9 = new StarGenerator(0.0f);
+    star_10 = new StarGenerator(0.0f);
+    star_11 = new StarGenerator(0.0f);
+    star_12 = new StarGenerator(0.0f);
+    star_13 = new StarGenerator(0.0f);
+    star_14 = new StarGenerator(0.0f);
+    star_15 = new StarGenerator(0.0f);
+
+
 
     VAO LightBoxVAO;
     VBO LightBoxVBO(cubeVertices, sizeof(cubeVertices));
@@ -462,14 +483,14 @@ int main()
 
 
     // // shader configuration
-    // shadow_v2.Activate();
-    // shadow_v2.setInt("diffuseTexture", 0);
-    // shadow_v2.setInt("shadowMap", 1);
-    // shadow_v2.setInt("normalMap", 2);
+    shadow_v2.Activate();
+    shadow_v2.setInt("diffuseTexture", 0);
+    shadow_v2.setInt("shadowMap", 1);
+    shadow_v2.setInt("normalMap", 2);
 
-    shadow.Activate();
-    shadow.setInt("diffuseTexture", 0);
-    shadow.setInt("shadowMap", 1);
+    // shadow.Activate();
+    // shadow.setInt("diffuseTexture", 0);
+    // shadow.setInt("shadowMap", 1);
 
     modelShader.Activate();
     modelShader.setInt("textureNormal", 0);
@@ -499,8 +520,8 @@ int main()
         glm::vec3 lightPos(0.0f, 10.0f, -15.0f);
         glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
         lightPos.x = cos(glfwGetTime()/5.0) * 10.0f;
-        // lightPos.z = cos(glfwGetTime()) * 2.0f;
-        // lightPos.y = sin(glfwGetTime()/5.0) * 10.0f;
+        lightPos.z = cos(glfwGetTime()) * 2.0f;
+        lightPos.y = sin(glfwGetTime()/5.0) * 10.0f;
 
         float time = (float)glfwGetTime();
         glm::vec3 previous_position = glm::vec3(X, Y, Z);
@@ -523,7 +544,7 @@ int main()
             X += 0.03f;
         }
         glm::vec3 newBallPos = glm::vec3 (X,Y,Z);
-        glm::vec3 cloudPosition = glm::vec3(3.0f, 1.0f, 3.0f);
+        glm::vec3 cloudPosition = glm::vec3(10.0f, 10.0f, 10.0f);
 
         // 1. render depth of scene to texture (from light's perspective)
         glm::mat4 lightProjection, lightView;
@@ -567,39 +588,39 @@ int main()
         glDepthFunc(GL_LESS);
 
         // 2. render scene as normal using the generated depth/shadow map        
-        shadow.Activate();
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = camera.GetViewMatrix();
-        shadow.setMat4("projection", projection);
-        shadow.setMat4("view", view);
-        // set light uniforms
-        shadow.setVec3("viewPos", camera.Position);
-        shadow.setVec3("lightPos", lightPos);
-        shadow.setMat4("lightSpaceMatrix", lightSpaceMatrix);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, diffuseMap);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, depthMap);
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, normalMap);
-        renderScene(shadow, backpackModel, planeVAO, beachBallModel, newBallPos, showerModel, sunModel, lightPos, cloudModel, cloudPosition);
-        
-        // shadow_v2.Activate();
+        // shadow.Activate();
         // glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         // glm::mat4 view = camera.GetViewMatrix();
-        // shadow_v2.setMat4("projection", projection);
-        // shadow_v2.setMat4("view", view);
+        // shadow.setMat4("projection", projection);
+        // shadow.setMat4("view", view);
         // // set light uniforms
-        // shadow_v2.setVec3("viewPos", camera.Position);
-        // shadow_v2.setVec3("lightPos", lightPos);
-        // shadow_v2.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+        // shadow.setVec3("viewPos", camera.Position);
+        // shadow.setVec3("lightPos", lightPos);
+        // shadow.setMat4("lightSpaceMatrix", lightSpaceMatrix);
         // glActiveTexture(GL_TEXTURE0);
         // glBindTexture(GL_TEXTURE_2D, diffuseMap);
         // glActiveTexture(GL_TEXTURE1);
         // glBindTexture(GL_TEXTURE_2D, depthMap);
         // glActiveTexture(GL_TEXTURE2);
         // glBindTexture(GL_TEXTURE_2D, normalMap);
-        // renderScene(shadow_v2, backpackModel, planeVAO, beachBallModel, newBallPos, showerModel, sunModel, lightPos, cloudModel, cloudPosition);
+        // renderScene(shadow, backpackModel, planeVAO, beachBallModel, newBallPos, showerModel, sunModel, lightPos, cloudModel, cloudPosition);
+        
+        shadow_v2.Activate();
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = camera.GetViewMatrix();
+        shadow_v2.setMat4("projection", projection);
+        shadow_v2.setMat4("view", view);
+        // set light uniforms
+        shadow_v2.setVec3("viewPos", camera.Position);
+        shadow_v2.setVec3("lightPos", lightPos);
+        shadow_v2.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuseMap);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, depthMap);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, normalMap);
+        renderScene(shadow_v2, backpackModel, planeVAO, beachBallModel, newBallPos, showerModel, sunModel, lightPos, cloudModel, cloudPosition);
 
 
         //  // Plane
@@ -648,7 +669,7 @@ int main()
         star_one->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
         
-        glm::vec3 StarPosition_two = glm::vec3(3.0f, 3.0f, -3.0f);
+        glm::vec3 StarPosition_two = glm::vec3(3.0f, 3.0f, 4.0f);
         star_two->draw(explosionShader, camera.Position , StarPosition_two, lightPos, projection5, view5);
         star_two->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
@@ -668,10 +689,59 @@ int main()
         star_five->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
 
-        glm::vec3 StarPosition_six = glm::vec3(3.0f, 3.0f, 0.0f);
+        glm::vec3 StarPosition_six = glm::vec3(4.0f, -3.0f, 1.0f);
         star_six->draw(explosionShader, camera.Position , StarPosition_six, lightPos, projection5, view5);
         star_six->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
         starModel.Draw(explosionShader);
+
+        glm::vec3 StarPosition_7 = glm::vec3(5.0f, -5.0f, 6.0f);
+        star_7->draw(explosionShader, camera.Position , StarPosition_7, lightPos, projection5, view5);
+        star_7->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
+        starModel.Draw(explosionShader);
+
+        glm::vec3 StarPosition_8 = glm::vec3(5.0f, 1.0f, 5.0f);
+        star_8->draw(explosionShader, camera.Position , StarPosition_8, lightPos, projection5, view5);
+        star_8->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
+        starModel.Draw(explosionShader);
+
+        glm::vec3 StarPosition_9 = glm::vec3(-4.0f, 2.0f, 2.0f);
+        star_9->draw(explosionShader, camera.Position , StarPosition_9, lightPos, projection5, view5);
+        star_9->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
+        starModel.Draw(explosionShader);
+
+        glm::vec3 StarPosition_10 = glm::vec3(0.0f, 3.0f, 2.0f);
+        star_10->draw(explosionShader, camera.Position , StarPosition_10, lightPos, projection5, view5);
+        star_10->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
+        starModel.Draw(explosionShader);
+
+        glm::vec3 StarPosition_11 = glm::vec3(-3.0f, -5.0f, 1.0f);
+        star_11->draw(explosionShader, camera.Position , StarPosition_11, lightPos, projection5, view5);
+        star_11->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
+        starModel.Draw(explosionShader);
+
+
+        glm::vec3 StarPosition_12 = glm::vec3(4.0f, 4.0f, 4.0f);
+        star_12->draw(explosionShader, camera.Position , StarPosition_12, lightPos, projection5, view5);
+        star_12->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
+        starModel.Draw(explosionShader);
+
+        glm::vec3 StarPosition_13 = glm::vec3(-2.0f, 2.0f, 5.0f);
+        star_13->draw(explosionShader, camera.Position , StarPosition_13, lightPos, projection5, view5);
+        star_13->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
+        starModel.Draw(explosionShader);
+
+
+        glm::vec3 StarPosition_14 = glm::vec3(-4.0f, 2.0f, 2.0f);
+        star_14->draw(explosionShader, camera.Position , StarPosition_14, lightPos, projection5, view5);
+        star_14->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
+        starModel.Draw(explosionShader);
+
+
+        glm::vec3 StarPosition_15 = glm::vec3(-5.0f, 3.0f, 1.0f);
+        star_15->draw(explosionShader, camera.Position , StarPosition_15, lightPos, projection5, view5);
+        star_15->update(explosionShader, position_of_first_ball, position_of_second_ball, 1.85f, 1.85f );
+        starModel.Draw(explosionShader);
+
 
         // particleBall
         glActiveTexture(GL_TEXTURE0);
@@ -789,16 +859,16 @@ void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &bea
     glm::vec3 colorNeutral = glm::vec3(1.0, 1.0, 1.0);
     shader.setVec3("colorFinal", glm::vec3(1.0f, 1.0f, 0.0f));
     // floor
+    // glm::mat4 model = glm::mat4(1.0f);
+    // shader.setMat4("model", model);
+    // planeVAO.Bind();
+    // glDrawArrays(GL_TRIANGLES, 0, 6);
+
     glm::mat4 model = glm::mat4(1.0f);
     shader.setMat4("model", model);
-    planeVAO.Bind();
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-
-    //  glm::mat4 model = glm::mat4(1.0f);
-    // shader.setMat4("model", model);
-    // shader.setMat4("model", model);
-    // shader.setVec3("viewPos", camera.Position);
-    // renderQuad();
+    shader.setMat4("model", model);
+    shader.setVec3("viewPos", camera.Position);
+    renderQuad();
 
     // BeachBall Model
     shader.setVec3("colorFinal", colorNeutral);
@@ -812,25 +882,29 @@ void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &bea
     shader.setMat4("model", model);
     beachBallModel.Draw(shader);
 
-    // backpack
-    model = glm::mat4(1.0f);
-    model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
-    model = glm::translate(model, glm::vec3(1.0f, 0.0f, 1.0f));
-    shader.setMat4("model", model);
-    backpackModel.Draw(shader);
-
-    // shower
-    model = glm::mat4(1.0f);
-    shader.setMat4("model", model);
-    showerModel.Draw(shader);
 
     // cloud
     glm::vec3 colorCloud = glm::vec3(2.5, 2.5, 2.5);
     shader.setVec3("colorFinal", colorCloud);
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, cloudPosition);
-    shader.setMat4("model", model);
-    cloudModel.Draw(shader);
+    // glm::vec3 cloudPosition_list[] = {
+    //     glm::vec3( 0.0f,  0.0f,  0.0f), 
+    //     glm::vec3( 1.0f, 1.0f, 0.0f), 
+    //     glm::vec3(1.0f, 2.0f,  0.0f),  
+    //     glm::vec3(1.0f, 3.0f,  0.0f),  
+    //     glm::vec3(2.0f, 1.0f,  0.0f),  
+    //     glm::vec3(2.0f,  2.0f,  0.0f),  
+    //     glm::vec3( 2.0f, 3.0f,  0.0f),  
+    //     glm::vec3( 2.0f,  1.0f,  0.0f), 
+    //     glm::vec3( 3.0f,  2.0f,  0.0f), 
+    //     glm::vec3(3.0f,  3.0f,  0.0f) ,
+    //     glm::vec3(3.0f, 1.0f,  0.0f) 
+    // };
+    // for(unsigned int i=1;i<=10;i++){  
+    //         model = glm::mat4(1.0f);
+    //         model = glm::translate(model, cloudPosition+cloudPosition_list[i]);
+    //         shader.setMat4("model", model);
+    //         cloudModel.Draw(shader);
+    // }
 
     // sun
     shader.setVec3("colorFinal", colorNeutral);
@@ -845,16 +919,16 @@ void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &bea
 void renderSceneDepth(Shader &shader, VAO &planeVAO, Model &beachBallModel, glm::vec3 newBallPos, Model &cloudModel, glm::vec3 cloudPosition)
 {
     // floor
-    glm::mat4 model = glm::mat4(1.0f);
-    shader.setMat4("model", model);
-    planeVAO.Bind();
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-
     // glm::mat4 model = glm::mat4(1.0f);
     // shader.setMat4("model", model);
-    // shader.setMat4("model", model);
-    // shader.setVec3("viewPos", camera.Position);
-    // renderQuad();
+    // planeVAO.Bind();
+    // glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    glm::mat4 model = glm::mat4(1.0f);
+    shader.setMat4("model", model);
+    shader.setMat4("model", model);
+    shader.setVec3("viewPos", camera.Position);
+    renderQuad();
 
     // BeachBall Model
     glm::mat4 trans5 = glm::mat4(1.0f);
@@ -868,10 +942,26 @@ void renderSceneDepth(Shader &shader, VAO &planeVAO, Model &beachBallModel, glm:
     beachBallModel.Draw(shader);
 
     // cloud
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, cloudPosition);
-    shader.setMat4("model", model);
-    cloudModel.Draw(shader);
+    // glm::vec3 cloudPosition_list[] = {
+    //     glm::vec3( 0.0f,  0.0f,  0.0f), 
+    //     glm::vec3( 1.0f, 1.0f, 0.0f), 
+    //     glm::vec3(1.0f, 2.0f,  0.0f),  
+    //     glm::vec3(1.0f, 3.0f,  0.0f),  
+    //     glm::vec3(2.0f, 1.0f,  0.0f),  
+    //     glm::vec3(2.0f,  2.0f,  0.0f),  
+    //     glm::vec3( 2.0f, 3.0f,  0.0f),  
+    //     glm::vec3( 2.0f,  1.0f,  0.0f), 
+    //     glm::vec3( 3.0f,  2.0f,  0.0f), 
+    //     glm::vec3(3.0f,  3.0f,  0.0f) ,
+    //     glm::vec3(3.0f, 1.0f,  0.0f) 
+    // };
+    // for(unsigned int i=1;i<=10;i++){  
+    //         model = glm::mat4(1.0f);
+    //         model = glm::translate(model, cloudPosition+cloudPosition_list[i]);
+    //         shader.setMat4("model", model);
+    //         cloudModel.Draw(shader);
+    // }
+    
     
 }
 
