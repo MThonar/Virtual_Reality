@@ -865,12 +865,14 @@ void renderScene(Shader &shader, Model &backpackModel, VAO &planeVAO, Model &bea
     // glDrawArrays(GL_TRIANGLES, 0, 6);
 
     glm::mat4 model = glm::mat4(1.0f);
+     shader.setInt("sand", 1);
     shader.setMat4("model", model);
     shader.setMat4("model", model);
     shader.setVec3("viewPos", camera.Position);
     renderQuad();
 
     // BeachBall Model
+    shader.setInt("sand", 0);
     shader.setVec3("colorFinal", colorNeutral);
     glm::mat4 trans5 = glm::mat4(1.0f);
     trans5 = glm::rotate(trans5, (float)glfwGetTime() * glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
@@ -917,7 +919,7 @@ void renderSceneDepth(Shader &shader, VAO &planeVAO, Model &beachBallModel, glm:
     // shader.setMat4("model", model);
     // planeVAO.Bind();
     // glDrawArrays(GL_TRIANGLES, 0, 6);
-
+    shader.setInt("sand", 1);
     glm::mat4 model = glm::mat4(1.0f);
     shader.setMat4("model", model);
     shader.setMat4("model", model);
@@ -925,6 +927,7 @@ void renderSceneDepth(Shader &shader, VAO &planeVAO, Model &beachBallModel, glm:
     renderQuad();
 
     // BeachBall Model
+    shader.setInt("sand", 0);
     glm::mat4 trans5 = glm::mat4(1.0f);
     trans5 = glm::rotate(trans5, (float)glfwGetTime() * glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
     model = glm::mat4(1.0f);
